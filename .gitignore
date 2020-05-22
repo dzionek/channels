@@ -1,0 +1,9 @@
+# Created by .ignore support plugin (hsz.mobi)
+.gitignore
+.idea/.gitignore
+.idea/channels.iml
+.idea/inspectionProfiles/
+.idea/misc.xml
+.idea/modules.xml
+venv/
+node_modules

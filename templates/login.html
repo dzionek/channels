@@ -1,0 +1,18 @@
+{% extends 'layout.html' %}
+
+{% block imports %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div id="login-screen">
+        <div id="login-container">
+            <form class="form-inline">
+                <label for="login-name" class="sr-only">username</label>
+                <input type="text" class="form-control" id="login-name"
+                                                       aria-describedby="usernameInput" placeholder="Enter your username">
+                <button type="submit" class="btn btn-info" id="login-btn">Join!</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

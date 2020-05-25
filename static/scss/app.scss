@@ -1,0 +1,13 @@
+%container {
+  height: 100vh;
+}
+
+#app-container {
+  @extend %container;
+}
+
+#channels-list {
+  @extend %container;
+  padding: 0;
+  overflow-y: scroll;
+}

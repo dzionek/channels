@@ -48,7 +48,13 @@ def set_up_app():
     if not User.query.filter_by(username=username).first():
         db.session.add(User(username=username))
         db.session.commit()
-    return render_template('app.html', username=username)
+
+    channels = Channel.query.all()
+    messages = Message.query.all()
+
+    return render_template(
+        'app.html', username=username, channels=channels, messages=messages
+    )
 
 
 if __name__ == '__main__':

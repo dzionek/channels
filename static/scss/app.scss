@@ -1,3 +1,5 @@
+$ui-height: 10vh;
+
 %container {
   height: 100vh;
 }
@@ -6,8 +8,23 @@
   @extend %container;
 }
 
-#channels-list {
+#channels {
   @extend %container;
   padding: 0;
+}
+
+#channels-list {
   overflow-y: scroll;
+  height: 100vh - $ui-height;
+}
+
+#channels-ui {
+  height: $ui-height;
+  position: relative;
+  button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
 }

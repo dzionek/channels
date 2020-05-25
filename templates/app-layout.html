@@ -7,12 +7,23 @@
 {% block content %}
     <div class="container-fluid" id="app-container">
         <div class="row">
-            <div class="col-md-3 border-right" id="channels-list">
-                {% block channels %}{% endblock %}
+
+            <div class="col-md-3 border-right" id="channels">
+
+                <div id="channels-ui">
+                    <button type="button" class="btn btn-success">Add a channel</button>
+                </div>
+
+                <div id="channels-list">
+                    {% block channels %}{% endblock %}
+                </div>
+
             </div>
+
             <div class="col-md-9 border-left">
                 {% block messages %}{% endblock %}
             </div>
+
         </div>
     </div>
 {% endblock %}

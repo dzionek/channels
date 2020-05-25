@@ -1,0 +1,18 @@
+#app-container, #channels {
+  height: 100vh; }
+
+#channels {
+  padding: 0; }
+
+#channels-list {
+  overflow-y: scroll;
+  height: 90vh; }
+
+#channels-ui {
+  height: 10vh;
+  position: relative; }
+  #channels-ui button {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); }

@@ -20,6 +20,21 @@ db.init_app(app)
 def create_db():
     db.create_all()
 
+@app.route('/', methods=['POST', 'GET'])
+def index():
+    if request.method == 'POST':
+        return log_in(request.form)
+    else:
+        if is_logged():
+            return set_up_app()
+        else:
+            return render_template('login.html')
+
+def log_in(request_form):
+    username = request_form.get('username')
+    session['username'] = username
+    return set_up_app()
+
 def is_logged():
     if not session.get('username'):
         return False
@@ -28,22 +43,8 @@ def is_logged():
     else:
         return True
 
-@app.route('/')
-def default():
-    if is_logged():
-        return set_up_app()
-    else:
-        return render_template('login.html')
-
-@app.route('/log_in', methods=['POST'])
-def log_in():
-    username = request.form.get('username')
-    session['username'] = username
-    return set_up_app()
-
 def set_up_app():
     username = session['username']
-    print(User.query.filter_by(username=username).first().username)
     if not User.query.filter_by(username=username).first():
         db.session.add(User(username=username))
         db.session.commit()

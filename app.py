@@ -1,6 +1,7 @@
 from os import environ
+import re
 
-from flask import Flask, render_template, session, request
+from flask import Flask, render_template, session, request, jsonify
 from flask_session import Session
 
 from models import *
@@ -16,6 +17,8 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 Session()
 
 db.init_app(app)
+
+valid_pattern = re.compile(r'[A-Za-z0-9 \-_]+')
 
 def create_db():
     db.create_all()
@@ -55,6 +58,36 @@ def set_up_app():
     return render_template(
         'app.html', username=username, channels=channels, messages=messages
     )
+
+
+def channel_has_invalid_name(channel_name: str) -> bool:
+
+    if not channel_name:
+        return True
+    else:
+        return not(bool(re.fullmatch(valid_pattern, channel_name)))\
+               or channel_name.startswith(' ')\
+               or channel_name.endswith(' ')
+
+
+def channel_already_exists(channel_name):
+    channel = Channel.query.filter_by(name=channel_name).first()
+    return bool(channel)
+
+def add_channel(channel_name):
+    db.session.add(Channel(name=channel_name))
+    db.session.commit()
+
+@app.route('/add-channel', methods=['POST'])
+def add_channel_ajax():
+    channel_name = request.form.get('channelName')
+    if channel_has_invalid_name(channel_name):
+        return jsonify({'success': False, 'errorMessage': f'You cannot create a channel of the given name: {channel_name}'})
+    elif channel_already_exists(channel_name):
+        return jsonify({'success': False, 'errorMessage': 'The channel already exists'})
+    else:
+        add_channel(channel_name)
+        return jsonify({'success': True, 'errorMessage': 'None'})
 
 
 if __name__ == '__main__':

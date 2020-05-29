@@ -3,7 +3,7 @@
  */
 interface addChannelJSON {
     success: boolean
-    errorMessage: string
+    errorMessage?: string
 }
 
 /**

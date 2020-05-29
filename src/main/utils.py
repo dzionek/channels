@@ -1,6 +1,8 @@
 import re
+from flask import jsonify
 from src.models.base import db
 from src.models.channel import Channel
+from src.models.message import Message
 
 VALID_PATTERN = re.compile(r'[A-Za-z0-9 \-_]+')
 
@@ -21,3 +23,9 @@ def channel_already_exists(channel_name):
 def add_channel(channel_name):
     db.session.add(Channel(name=channel_name))
     db.session.commit()
+
+def get_messages(channel_name):
+    channel = Channel.query.filter_by(name=channel_name).first()
+    messages = Message.query.filter_by(channel_id=channel.id).all()
+    messages_jsonable = [message.content for message in messages]
+    return jsonify({'messages': messages_jsonable})

@@ -65,6 +65,46 @@ function addChannelModal() {
         }
     }));
 }
+let channel = undefined;
+function getResponseMessages(channelName) {
+    return new Promise(resolve => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/get-messages');
+        xhr.responseType = 'json';
+        xhr.onload = () => {
+            resolve(xhr.response);
+        };
+        const data = new FormData();
+        data.append('channelName', channelName);
+        xhr.send(data);
+    });
+}
+function switchChannel(channel) {
+    channel.addEventListener('click', function () {
+        return __awaiter(this, void 0, void 0, function* () {
+            const hideSwitchChannel = document.querySelector('#hide-switch-channel');
+            hideSwitchChannel.style.display = 'block';
+            const channel = this.dataset.channel;
+            const channelNameInfo = document.querySelector('#channel-info h3');
+            channelNameInfo.innerHTML = channel;
+            const responseMessages = yield getResponseMessages(channel);
+            console.log(responseMessages);
+            const messages = responseMessages.messages;
+            const messagesDiv = document.querySelector('#messages-list');
+            messagesDiv.innerHTML = '';
+            messages.forEach(message => {
+                console.log(message);
+                const ul = document.createElement('ul');
+                ul.innerHTML = message;
+                messagesDiv.append(ul);
+            });
+        });
+    });
+}
+function channelSwitcher() {
+    document.querySelectorAll('.channel').forEach(channel => switchChannel(channel));
+}
 document.addEventListener('DOMContentLoaded', () => {
     addChannelModal();
+    channelSwitcher();
 });

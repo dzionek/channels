@@ -13,6 +13,10 @@ $ui-height: 10vh;
   padding: 0;
 }
 
+.channel {
+  cursor: pointer;
+}
+
 .channel:hover {
   background-color: #e5edff;
 }
@@ -35,4 +39,37 @@ $ui-height: 10vh;
 
 .modal-body-extended {
   padding: 10%;
+}
+
+#channel-info {
+  height: $ui-height;
+  text-align: center;
+  position: relative;
+  div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+  }
+}
+
+#hide-switch-channel {
+  display: none;
+}
+
+#messages-list {
+  height: 100vh - 15vh - $ui-height;
+  overflow-y: scroll;
+  padding-top: 2.5vh;
+  padding-bottom: 2.5vh;
+}
+
+#messages-input {
+  height: $ui-height;
+  padding-bottom: 2.5vh;
+  padding-top: 2.5vh;
+}
+
+#messages-input-text-area {
+  resize: none;
 }

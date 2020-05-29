@@ -73,6 +73,56 @@ function addChannelModal(): void {
     })
 }
 
+let channel = undefined
+
+interface messagesJSON {
+    messages: string[]
+}
+
+function getResponseMessages(channelName: string): Promise<messagesJSON> {
+    return new Promise<messagesJSON>(resolve => {
+        const xhr: XMLHttpRequest = new XMLHttpRequest()
+        xhr.open('POST', '/get-messages')
+        xhr.responseType = 'json'
+        xhr.onload = () => {
+            resolve(xhr.response)
+        }
+        const data: FormData = new FormData()
+        data.append('channelName', channelName)
+        xhr.send(data)
+    })
+}
+
+function switchChannel(channel: HTMLElement) {
+    channel.addEventListener('click', async function () {
+        const hideSwitchChannel: HTMLDivElement = document.querySelector('#hide-switch-channel')
+        hideSwitchChannel.style.display = 'block'
+
+        const channel = this.dataset.channel
+        const channelNameInfo: HTMLElement = document.querySelector('#channel-info h3')
+        channelNameInfo.innerHTML = channel
+
+        const responseMessages: messagesJSON = await getResponseMessages(channel)
+        console.log(responseMessages)
+        const messages: string[] = responseMessages.messages
+        const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
+        messagesDiv.innerHTML = ''
+        messages.forEach(message => {
+            console.log(message)
+            const ul = document.createElement('ul')
+            ul.innerHTML = message
+            messagesDiv.append(ul)
+        })
+    })
+}
+
+function channelSwitcher(): void {
+    document.querySelectorAll('.channel').forEach(
+        channel => switchChannel(<HTMLElement>channel)
+    )
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     addChannelModal()
+    channelSwitcher()
 })

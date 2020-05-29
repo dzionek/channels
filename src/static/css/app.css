@@ -4,6 +4,9 @@
 #channels {
   padding: 0; }
 
+.channel {
+  cursor: pointer; }
+
 .channel:hover {
   background-color: #e5edff; }
 
@@ -22,3 +25,30 @@
 
 .modal-body-extended {
   padding: 10%; }
+
+#channel-info {
+  height: 10vh;
+  text-align: center;
+  position: relative; }
+  #channel-info div {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); }
+
+#hide-switch-channel {
+  display: none; }
+
+#messages-list {
+  height: 75vh;
+  overflow-y: scroll;
+  padding-top: 2.5vh;
+  padding-bottom: 2.5vh; }
+
+#messages-input {
+  height: 10vh;
+  padding-bottom: 2.5vh;
+  padding-top: 2.5vh; }
+
+#messages-input-text-area {
+  resize: none; }

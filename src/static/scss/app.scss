@@ -13,6 +13,10 @@ $ui-height: 10vh;
   padding: 0;
 }
 
+.channel:hover {
+  background-color: #e5edff;
+}
+
 #channels-list {
   overflow-y: scroll;
   height: 100vh - $ui-height;

@@ -4,6 +4,9 @@
 #channels {
   padding: 0; }
 
+.channel:hover {
+  background-color: #e5edff; }
+
 #channels-list {
   overflow-y: scroll;
   height: 90vh; }

@@ -65,7 +65,15 @@ function addChannelModal() {
         }
     }));
 }
-let channel = undefined;
+/**
+ * Global variable to monitor the channel the user is currently looking at.
+ */
+let currentChannel = undefined;
+/**
+ * Get response with the message of the given channel.
+ * @param channelName  name of the channel which messages will be displayed.
+ * @return Promise with the messages packed in JSON.
+ */
 function getResponseMessages(channelName) {
     return new Promise(resolve => {
         const xhr = new XMLHttpRequest();
@@ -79,21 +87,23 @@ function getResponseMessages(channelName) {
         xhr.send(data);
     });
 }
+/**
+ * Change a channel and show its messages.
+ * @param channel  channel to be switched on.
+ */
 function switchChannel(channel) {
     channel.addEventListener('click', function () {
         return __awaiter(this, void 0, void 0, function* () {
             const hideSwitchChannel = document.querySelector('#hide-switch-channel');
             hideSwitchChannel.style.display = 'block';
-            const channel = this.dataset.channel;
+            currentChannel = this.dataset.channel;
             const channelNameInfo = document.querySelector('#channel-info h3');
-            channelNameInfo.innerHTML = channel;
-            const responseMessages = yield getResponseMessages(channel);
-            console.log(responseMessages);
+            channelNameInfo.innerHTML = currentChannel;
+            const responseMessages = yield getResponseMessages(currentChannel);
             const messages = responseMessages.messages;
             const messagesDiv = document.querySelector('#messages-list');
             messagesDiv.innerHTML = '';
             messages.forEach(message => {
-                console.log(message);
                 const ul = document.createElement('ul');
                 ul.innerHTML = `<b>${message.user}</b> - ${message.time} : ${message.content}`;
                 messagesDiv.append(ul);
@@ -101,10 +111,41 @@ function switchChannel(channel) {
         });
     });
 }
+/**
+ * Switch a channel and show its messages after clicking on its panel.
+ */
 function channelSwitcher() {
-    document.querySelectorAll('.channel').forEach(channel => switchChannel(channel));
+    const channels = document.querySelectorAll('.channel');
+    channels.forEach(channel => switchChannel(channel));
+}
+/**
+ * Add the given message to the database.
+ * @param messageContent  content of the message to be added.
+ */
+function addMessageToDB(messageContent) {
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/add-message');
+    const data = new FormData();
+    data.append('messageContent', messageContent);
+    data.append('channel', currentChannel);
+    xhr.send(data);
+}
+/**
+ * Send the message to the {@link currentChannel} after clicking 'send' button on the website.
+ */
+function sendMessage() {
+    const sendButton = document.querySelector('#messages-input-send-button');
+    sendButton.addEventListener('click', () => {
+        const textArea = document.querySelector('#messages-input-text-area');
+        const messageContent = textArea.value;
+        if (messageContent != '') {
+            addMessageToDB(messageContent);
+            textArea.value = '';
+        }
+    });
 }
 document.addEventListener('DOMContentLoaded', () => {
     addChannelModal();
     channelSwitcher();
+    sendMessage();
 });

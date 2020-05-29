@@ -1,5 +1,5 @@
 import re
-from flask import jsonify
+from flask import jsonify, session
 from src.models.base import db
 from src.models.channel import Channel
 from src.models.message import Message
@@ -7,7 +7,7 @@ from src.models.user import User
 
 VALID_PATTERN = re.compile(r'[A-Za-z0-9 \-_]+')
 
-def channel_has_invalid_name(channel_name: str) -> bool:
+def channel_has_invalid_name(channel_name):
 
     if not channel_name:
         return True
@@ -37,3 +37,20 @@ def get_messages(channel_name):
         for message in messages
     ]
     return jsonify({'messages': messages_response})
+
+def add_message(message_content, channel):
+    username = session['username']
+    user_id = User.query.filter_by(username=username).first().id
+
+    from datetime import datetime
+    time = datetime.now()
+
+    channel_id = Channel.query.filter_by(name=channel).first().id
+
+    print(user_id, time, channel_id, message_content)
+
+    db.session.add(Message(
+        content=message_content, user_id=user_id, time=time, channel_id=channel_id
+    ))
+
+    db.session.commit()

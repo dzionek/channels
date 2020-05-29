@@ -1,5 +1,5 @@
 from flask import Blueprint, jsonify, request
-from .utils import channel_has_invalid_name, channel_already_exists, add_channel, get_messages
+from .utils import *
 
 main = Blueprint('main', __name__)
 
@@ -18,3 +18,11 @@ def add_channel_ajax():
 def get_messages_ajax():
     channel_name = request.form.get('channelName')
     return get_messages(channel_name)
+
+@main.route('/add-message', methods=['POST'])
+def add_message_ajax():
+    message_content = request.form.get('messageContent')
+    channel = request.form.get('channel')
+    print(message_content, channel)
+    add_message(message_content, channel)
+    return '', 204

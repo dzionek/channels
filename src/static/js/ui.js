@@ -95,7 +95,7 @@ function switchChannel(channel) {
             messages.forEach(message => {
                 console.log(message);
                 const ul = document.createElement('ul');
-                ul.innerHTML = message;
+                ul.innerHTML = `<b>${message.user}</b> - ${message.time} : ${message.content}`;
                 messagesDiv.append(ul);
             });
         });

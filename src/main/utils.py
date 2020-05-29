@@ -3,6 +3,7 @@ from flask import jsonify
 from src.models.base import db
 from src.models.channel import Channel
 from src.models.message import Message
+from src.models.user import User
 
 VALID_PATTERN = re.compile(r'[A-Za-z0-9 \-_]+')
 
@@ -27,5 +28,12 @@ def add_channel(channel_name):
 def get_messages(channel_name):
     channel = Channel.query.filter_by(name=channel_name).first()
     messages = Message.query.filter_by(channel_id=channel.id).all()
-    messages_jsonable = [message.content for message in messages]
-    return jsonify({'messages': messages_jsonable})
+    messages_response = [
+        {
+            'user': User.query.filter_by(id=message.user_id).first().username,
+            'content': message.content,
+            'time': message.time
+        }
+        for message in messages
+    ]
+    return jsonify({'messages': messages_response})

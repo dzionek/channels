@@ -75,8 +75,14 @@ function addChannelModal(): void {
 
 let channel = undefined
 
+interface singleMessageJSON {
+    user: string
+    content: string
+    time: string
+}
+
 interface messagesJSON {
-    messages: string[]
+    messages: singleMessageJSON[]
 }
 
 function getResponseMessages(channelName: string): Promise<messagesJSON> {
@@ -104,13 +110,13 @@ function switchChannel(channel: HTMLElement) {
 
         const responseMessages: messagesJSON = await getResponseMessages(channel)
         console.log(responseMessages)
-        const messages: string[] = responseMessages.messages
+        const messages: singleMessageJSON[] = responseMessages.messages
         const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
         messagesDiv.innerHTML = ''
         messages.forEach(message => {
             console.log(message)
             const ul = document.createElement('ul')
-            ul.innerHTML = message
+            ul.innerHTML = `<b>${message.user}</b> - ${message.time} : ${message.content}`
             messagesDiv.append(ul)
         })
     })

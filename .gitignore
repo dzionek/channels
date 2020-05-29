@@ -7,3 +7,5 @@
 .idea/modules.xml
 venv/
 node_modules
+secrets.py
+flask_session

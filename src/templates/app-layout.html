@@ -2,7 +2,8 @@
 
 {% block imports %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
-    <script type="module" src="{{ url_for('static', filename='js/ui.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='dist/js/bundle.js') }}"></script>
+
 {% endblock %}
 
 {% block content %}

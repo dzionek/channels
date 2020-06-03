@@ -1,5 +1,4 @@
 from flask import Blueprint, request
-from ..sockets.sockets import announce_channel
 
 from .utils import *
 
@@ -14,7 +13,6 @@ def add_channel_ajax():
         return jsonify({'success': False, 'errorMessage': 'The channel already exists'})
     else:
         add_channel(channel_name)
-        announce_channel(channel_name)
         return jsonify({'success': True})
 
 @main.route('/get-messages', methods=['POST'])

@@ -4,6 +4,7 @@ from src.models.base import db
 from src.models.channel import Channel
 from src.models.message import Message
 from src.models.user import User
+from ..sockets.sockets import announce_channel, announce_message
 
 VALID_PATTERN = re.compile(r'[A-Za-z0-9 \-_]+')
 
@@ -24,6 +25,7 @@ def channel_already_exists(channel_name):
 def add_channel(channel_name):
     db.session.add(Channel(name=channel_name))
     db.session.commit()
+    announce_channel(channel_name)
 
 def get_messages(channel_name):
     channel = Channel.query.filter_by(name=channel_name).first()
@@ -47,10 +49,9 @@ def add_message(message_content, channel):
 
     channel_id = Channel.query.filter_by(name=channel).first().id
 
-    print(user_id, time, channel_id, message_content)
-
     db.session.add(Message(
         content=message_content, user_id=user_id, time=time, channel_id=channel_id
     ))
 
     db.session.commit()
+    announce_message(username, str(time), channel, message_content)

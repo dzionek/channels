@@ -3,6 +3,8 @@
  * and for sending a message.
  */
 
+const messageTemplate = require('../handlebars/message.handlebars')
+
 /** Global variable to monitor the channel the user is currently looking at. */
 let currentChannel: string = undefined
 
@@ -57,6 +59,15 @@ function showChannelTitle(): void {
     channelNameInfo.innerHTML = currentChannel
 }
 
+export function appendMessage(user: string, time: string, content: string): void {
+    const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
+    messagesDiv.innerHTML += messageTemplate({
+        'user': user,
+        'time': time,
+        'content': content
+    })
+}
+
 /**
  * Show the given messages that belong to the {@link currentChannel}.
  * @param responseMessages  messages of the {@link currentChannel}.
@@ -65,11 +76,7 @@ function showChannelsMessages(responseMessages: messagesJSON): void {
     const messages: singleMessageJSON[] = responseMessages.messages
     const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
     messagesDiv.innerHTML = ''
-    messages.forEach(message => {
-        const ul = document.createElement('ul')
-        ul.innerHTML = `<b>${message.user}</b> - ${message.time} : ${message.content}`
-        messagesDiv.append(ul)
-    })
+    messages.forEach(message => appendMessage(message.user, message.time, message.content))
 }
 
 /**

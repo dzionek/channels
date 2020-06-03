@@ -1,0 +1,36 @@
+{
+  "name": "channels",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dzionek/channels.git"
+  },
+  "keywords": [],
+  "author": "Bartosz Dzionek",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/dzionek/channels/issues"
+  },
+  "homepage": "https://github.com/dzionek/channels#readme",
+  "devDependencies": {
+    "@types/node": "^14.0.9",
+    "@types/socket.io-client": "^1.4.33",
+    "handlebars-loader": "^1.7.1",
+    "ts-loader": "^7.0.5",
+    "typescript": "^3.9.3",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.6",
+    "socket.io-client": "^2.3.0"
+  }
+}

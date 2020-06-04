@@ -1,5 +1,5 @@
 import unittest
-from app import channel_has_invalid_name
+from app.main.utils import channel_has_invalid_name
 
 
 class AddChannelTestCase(unittest.TestCase):

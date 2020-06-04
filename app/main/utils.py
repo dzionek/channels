@@ -1,9 +1,9 @@
 import re
 from flask import jsonify, session
-from src.models.base import db
-from src.models.channel import Channel
-from src.models.message import Message
-from src.models.user import User
+from app.models.base import db
+from app.models.channel import Channel
+from app.models.message import Message
+from app.models.user import User
 from ..sockets.sockets import announce_channel, announce_message
 
 VALID_PATTERN = re.compile(r'[A-Za-z0-9 \-_]+')

@@ -24,6 +24,5 @@ def get_messages_ajax():
 def add_message_ajax():
     message_content = request.form.get('messageContent')
     channel = request.form.get('channel')
-    print(message_content, channel)
     add_message(message_content, channel)
     return '', 204

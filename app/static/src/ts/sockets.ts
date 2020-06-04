@@ -1,7 +1,7 @@
 import io from 'socket.io-client'
 import {channelSwitcher, appendMessage} from './messages'
 
-const channelTemplate = require('../handlebars/channel.handlebars')
+const channelTemplate = require('../../handlebars/channel.handlebars')
 
 const socket: SocketIOClient.Socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port)
 
@@ -23,7 +23,6 @@ export function sockets(): void {
 
 function show_added_channel(): void {
     socket.on('announce channel', (data: ChannelSocketResponse) => {
-        console.log(data.channelName)
         const li = channelTemplate({'channelName': data.channelName})
         const channelsList: HTMLDivElement = document.querySelector('#channels-list ul')
         channelsList.innerHTML += li

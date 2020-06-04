@@ -1,8 +1,8 @@
 from flask import session, render_template
-from src.models.base import db
-from src.models.user import User
-from src.models.channel import Channel
-from src.models.message import Message
+from app.models.base import db
+from app.models.user import User
+from app.models.channel import Channel
+from app.models.message import Message
 
 def log_in(request_form):
     username = request_form.get('username')

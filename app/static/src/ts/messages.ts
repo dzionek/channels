@@ -3,7 +3,7 @@
  * and for sending a message.
  */
 
-const messageTemplate = require('../handlebars/message.handlebars')
+const messageTemplate = require('../../handlebars/message.handlebars')
 
 /** Global variable to monitor the channel the user is currently looking at. */
 let currentChannel: string = undefined

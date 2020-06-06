@@ -1,6 +1,6 @@
 import re
 from flask import jsonify, session
-from flask.wrappers import Response
+from typing import Any
 
 from app.models.base import db
 from app.models.channel import Channel
@@ -58,7 +58,7 @@ def add_channel(channel_name: str) -> None:
     db.session.commit()
     announce_channel(channel_name)
 
-def get_messages(channel_name: str) -> Response:
+def get_messages(channel_name: str) -> Any:
     """Get messages of the given channel and return them in JSON format.
 
     Args:

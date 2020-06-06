@@ -3,6 +3,7 @@
  * and for sending a message.
  */
 
+/** Handlebars HTML template of the message. */
 const messageTemplate = require('../../handlebars/message.handlebars')
 
 /** Global variable to monitor the channel the user is currently looking at. */
@@ -11,7 +12,7 @@ let currentChannel: string = undefined
 /**
  * JSON response of the single message.
  */
-interface singleMessageJSON {
+interface SingleMessage {
     readonly user: string
     readonly content: string
     readonly time: string
@@ -20,8 +21,8 @@ interface singleMessageJSON {
 /**
  * JSON response of the get messages request to server.
  */
-interface messagesJSON {
-    readonly messages: singleMessageJSON[]
+interface Messages {
+    readonly messages: SingleMessage[]
 }
 
 /**
@@ -29,8 +30,8 @@ interface messagesJSON {
  * @param channelName  name of the channel which messages will be displayed.
  * @return Promise with the messages packed in JSON.
  */
-function getResponseMessages(channelName: string): Promise<messagesJSON> {
-    return new Promise<messagesJSON>(resolve => {
+function getResponseMessages(channelName: string): Promise<Messages> {
+    return new Promise<Messages>(resolve => {
         const xhr: XMLHttpRequest = new XMLHttpRequest()
         xhr.open('POST', '/get-messages')
         xhr.responseType = 'json'
@@ -59,6 +60,12 @@ function showChannelTitle(): void {
     channelNameInfo.innerHTML = currentChannel
 }
 
+/**
+ * Append a given message to the div of all messages.
+ * @param user  name of the user who sent that message.
+ * @param time  time when the message was sent.
+ * @param content  content of the message.
+ */
 export function appendMessage(user: string, time: string, content: string): void {
     const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
     messagesDiv.innerHTML += messageTemplate({
@@ -72,8 +79,8 @@ export function appendMessage(user: string, time: string, content: string): void
  * Show the given messages that belong to the {@link currentChannel}.
  * @param responseMessages  messages of the {@link currentChannel}.
  */
-function showChannelsMessages(responseMessages: messagesJSON): void {
-    const messages: singleMessageJSON[] = responseMessages.messages
+function showChannelsMessages(responseMessages: Messages): void {
+    const messages: SingleMessage[] = responseMessages.messages
     const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
     messagesDiv.innerHTML = ''
     messages.forEach(message => appendMessage(message.user, message.time, message.content))
@@ -89,7 +96,7 @@ function switchChannel(channel: HTMLElement): void {
         currentChannel = this.dataset.channel
         showChannelTitle()
 
-        const responseMessages: messagesJSON = await getResponseMessages(currentChannel)
+        const responseMessages: Messages = await getResponseMessages(currentChannel)
         showChannelsMessages(responseMessages)
     })
 }

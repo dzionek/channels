@@ -1,7 +1,11 @@
 /**
+ * Module responsible for adding a channel and handling its modal.
+ */
+
+/**
  * JSON response after sending add channel request to server.
  */
-interface addChannelJSON {
+interface AddChannelResponse {
     readonly success: boolean
     readonly errorMessage?: string
 }
@@ -11,7 +15,7 @@ interface addChannelJSON {
  * @param channelName  name of the channel to be added.
  * @return Promise with JSON of the response.
  */
-function getResponseAddChannel(channelName: string): Promise<addChannelJSON> {
+function getResponseAddChannel(channelName: string): Promise<AddChannelResponse> {
     return new Promise((resolve) => {
         const xhr: XMLHttpRequest = new XMLHttpRequest()
         xhr.open('POST', '/add-channel')
@@ -63,7 +67,7 @@ export function addChannelModal(): void {
 
     addButton.addEventListener('click', async () => {
         const channelName: string = input.value
-        const responseAddChannel: addChannelJSON = await getResponseAddChannel(channelName)
+        const responseAddChannel: AddChannelResponse = await getResponseAddChannel(channelName)
         if (responseAddChannel.success) {
             addChannelMessage()
             closeModal()

@@ -13,6 +13,7 @@ class Channel(db.Model):
 
     Relationships:
         messages: All messages the channel has. One to many relationship with Message model.
+
     """
     __tablename__ = 'channels'
     id = db.Column(db.Integer, primary_key=True)

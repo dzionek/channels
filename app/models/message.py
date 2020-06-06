@@ -11,7 +11,9 @@ class Message(db.Model):
         id: Primary key of the message.\n
         content: Content of the message.\n
         user_id: ID of the user who sent the message.\n
-        time: Time when the message was sent.
+        time: Time when the message was sent.\n
+        channel_id: Id of the channel the message was sent to.
+
     """
     __tablename__ = 'messages'
     id = db.Column(db.Integer, primary_key=True)

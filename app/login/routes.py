@@ -1,10 +1,28 @@
-from flask import Blueprint, request, render_template
+from flask import request, render_template
+
+from .base import login
 from .utils import log_in, is_logged, set_up_app
 
-login = Blueprint('login', __name__)
+"""
+Routes for the functionality of the app related to login.
+"""
 
 @login.route('/', methods=['POST', 'GET'])
-def index():
+def index() -> str:
+    """Login factory.
+
+    Opened with GET:
+        Check if the user is logged in. If it is, redirect to the app.
+        Otherwise, render template to log in.
+
+    Opened with POST:
+        Get 'username' parameter from the POST form. Create or log in user of a given 'username'
+         and redirect her/him to app.
+
+    Returns:
+        Template of the login page, or app page.
+
+    """
     if request.method == 'POST':
         return log_in(request.form)
     else:

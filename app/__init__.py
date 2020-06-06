@@ -12,6 +12,7 @@ def create_app() -> Flask:
 
     Returns:
         The created Flask application.
+
     """
     app = Flask(__name__)
     configure_app(app)

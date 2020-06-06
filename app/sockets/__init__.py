@@ -10,5 +10,6 @@ def init_app(app: Flask) -> None:
 
     Args:
         app: Flask application where Socket.IO should be initialized.
+
     """
     socket_io.init_app(app)

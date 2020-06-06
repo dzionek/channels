@@ -10,6 +10,7 @@ def init_app(app: Flask) -> None:
 
     Args:
         app: Flask application the database should be initialized in.
+
     """
     db.init_app(app)
     with app.app_context():

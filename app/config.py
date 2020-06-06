@@ -11,6 +11,7 @@ def configure_app(app: Flask) -> None:
 
     Args:
         app: Flask application to be configured.
+
     """
     app.secret_key = SECRET_KEY
     app.config['SESSION_TYPE'] = 'filesystem'

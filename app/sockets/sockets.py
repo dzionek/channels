@@ -9,6 +9,7 @@ def announce_channel(channel_name: str) -> None:
 
     Args:
         channel_name: Name of the channel that was added.
+
     """
     response = {'channelName': channel_name}
     socket_io.emit('announce channel', response, broadcast=True)
@@ -21,6 +22,7 @@ def announce_message(user: str, time: str, channel: str, message_content: str) -
         time: Time when she/he sent it.
         channel: Channel the message was sent to.
         message_content: Content of the message.
+
     """
     response = {
         'user': user,

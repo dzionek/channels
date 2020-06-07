@@ -35,3 +35,23 @@ Run the setup file in the main directory
 ```bash
 python setup.py
 ```
+
+## TODO:
+**Login and Registration**
+- [ ] Better main page
+- [ ] Registration view
+- [ ] Sending email and confirming
+- [ ] Forget password
+
+**Functionality**
+- [ ] Channels should have passwords
+  - [ ] Join a channel modal
+  - [ ] Add password to channel model
+  - [ ] Leave a channel
+- [ ] REST API
+  - [ ] Refactor and use more OOP
+
+**Design**
+- [ ] Message should have own colorful interactive div that changes on hover
+- [ ] Black mode
+- [ ] More informative top bar

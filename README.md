@@ -38,8 +38,8 @@ python setup.py
 
 ## TODO:
 **Login and Registration**
-- [ ] Better main page
-- [ ] Registration view
+- [x] Better main page
+- [x] Registration view
 - [ ] Sending email and confirming
 - [ ] Forget password
 

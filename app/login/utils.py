@@ -1,8 +1,5 @@
 from flask import session, render_template
-from werkzeug.datastructures import ImmutableMultiDict
 
-from app.models.base import db
-from app.models.user import User
 from app.models.channel import Channel
 from app.models.message import Message
 
@@ -10,17 +7,16 @@ from app.models.message import Message
 Utility functions for login routes.
 """
 
-def log_in(request_form: ImmutableMultiDict) -> str:
-    """Log in user whose username was provided in the given request_form.
+def log_in(username: str) -> str:
+    """Log in user of the given username.
 
     Args:
-        request_form: HTML form with get value with username.
+        username: Name of the user.
 
     Returns:
         Template of the main part of the app.
 
     """
-    username = request_form.get('username')
     session['username'] = username
     return set_up_app()
 
@@ -41,9 +37,6 @@ def set_up_app() -> str:
         Rendered template of the main app.
     """
     username = session['username']
-    if not User.query.filter_by(username=username).first():
-        db.session.add(User(username=username))
-        db.session.commit()
 
     channels = Channel.query.all()
     messages = Message.query.all()

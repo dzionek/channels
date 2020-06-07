@@ -41,6 +41,13 @@ export function sockets(): void {
  */
 function show_added_channel(): void {
     socket.on('announce channel', (data: ChannelSocketResponse) => {
+
+        // if there is alert informing "there are no channels", it must be closed.
+        const alert: HTMLDivElement = document.querySelector('.alert-danger')
+        if (alert != null) {
+            alert.remove()
+        }
+
         const li = channelTemplate({'channelName': data.channelName})
         const channelsList: HTMLDivElement = document.querySelector('#channels-list ul')
         channelsList.innerHTML += li

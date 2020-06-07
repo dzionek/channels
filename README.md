@@ -55,3 +55,10 @@ python setup.py
 - [ ] Message should have own colorful interactive div that changes on hover
 - [ ] Black mode
 - [ ] More informative top bar
+
+**Learn and Use**
+- [ ] Docker container
+- [ ] More unit tests
+- [ ] CI/CD and Scalability
+- [ ] Security concerns
+- [ ] Deploy to Heroku

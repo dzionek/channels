@@ -1,5 +1,6 @@
 import re
 from flask import jsonify, session
+from datetime import datetime
 from typing import Any
 
 from app.models.base import db
@@ -58,6 +59,20 @@ def add_channel(channel_name: str) -> None:
     db.session.commit()
     announce_channel(channel_name)
 
+def pretty_time(full_time: datetime) -> str:
+    """Take datetime object and get its string of the form YYYY-MM-DD HH:MM.
+
+    Args:
+        full_time: DateTime object which pretty form the function should return.
+
+    Returns:
+        String YYYY-MM-DD HH:MM.
+
+    """
+    full_time_str = str(full_time)
+    length_boundary = len('2020-01-01 00:00')
+    return full_time_str[:length_boundary]
+
 def get_messages(channel_name: str) -> Any:
     """Get messages of the given channel and return them in JSON format.
 
@@ -74,7 +89,7 @@ def get_messages(channel_name: str) -> Any:
         {
             'user': User.query.filter_by(id=message.user_id).first().username,
             'content': message.content,
-            'time': message.time
+            'time': pretty_time(message.time)
         }
         for message in messages
     ]
@@ -92,14 +107,13 @@ def add_message(message_content: str, channel: str) -> None:
     username = session['username']
     user_id = User.query.filter_by(username=username).first().id
 
-    from datetime import datetime
-    time = datetime.now()
+    full_time = datetime.now()
 
     channel_id = Channel.query.filter_by(name=channel).first().id
 
     db.session.add(Message(
-        content=message_content, user_id=user_id, time=time, channel_id=channel_id
+        content=message_content, user_id=user_id, time=full_time, channel_id=channel_id
     ))
 
     db.session.commit()
-    announce_message(username, str(time), channel, message_content)
+    announce_message(username, pretty_time(full_time), channel, message_content)

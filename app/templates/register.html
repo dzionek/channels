@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form method="post" action="register.html">
+        {{ form.hidden_tag() }}
+        <fieldset>
+            {{ form.username.label }}
+            {{ form.username }}
+
+            {{ form.email.label }}
+            {{ form.email }}
+
+            {{ form.password.label }}
+            {{ form.password }}
+
+            {{ form.confirm_password.label }}
+            {{ form.confirm_password }}
+
+            {{ form.submit }}
+        </fieldset>
+    </form>
+</body>
+</html>

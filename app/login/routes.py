@@ -2,6 +2,8 @@ from flask import request, render_template
 
 from .base import login
 from .utils import log_in, is_logged, set_up_app
+from app.forms.registration import RegistrationForm
+from app.forms.login import LoginForm
 
 """
 Routes for the functionality of the app related to login.
@@ -29,4 +31,10 @@ def index() -> str:
         if is_logged():
             return set_up_app()
         else:
-            return render_template('login.html')
+            form = LoginForm()
+            return render_template('login.html', form=form)
+
+@login.route('/register')
+def register() -> str:
+    form = RegistrationForm()
+    return render_template('register.html', form=form)

@@ -5,3 +5,4 @@ node_modules
 secrets.py
 flask_session
 app/static/dist
+execute.sql

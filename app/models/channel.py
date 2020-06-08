@@ -19,3 +19,12 @@ class Channel(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(30), unique=True, nullable=False)
     messages = db.relationship('Message', backref='channel', lazy=True)
+
+    def __repr__(self) -> str:
+        """Get representation of a channel.
+
+        Returns:
+            String representation of a channel.
+
+        """
+        return f"Channel(name='{self.name}')"

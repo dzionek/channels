@@ -17,3 +17,12 @@ class User(db.Model):
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String, nullable=False)
     messages = db.relationship('Message', backref='user', lazy=True)
+
+    def __repr__(self) -> str:
+        """Get representation of a user.
+
+        Returns:
+            String representation of a user.
+
+        """
+        return f"User(name='{self.username}')"

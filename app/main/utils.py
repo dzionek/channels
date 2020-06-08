@@ -84,7 +84,7 @@ def get_messages(channel_name: str) -> Any:
 
     """
     channel = Channel.query.filter_by(name=channel_name).first()
-    messages = Message.query.filter_by(channel_id=channel.id).all()
+    messages = channel.messages
     messages_response = [
         {
             'user': User.query.filter_by(id=message.user_id).first().username,

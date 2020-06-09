@@ -1,5 +1,5 @@
 from flask import render_template, flash, url_for, redirect
-from flask_login import login_user, current_user
+from flask_login import login_user, current_user, logout_user
 
 from typing import Union
 from werkzeug.wrappers import Response
@@ -60,7 +60,7 @@ def register() -> Union[Response, str]:
 
     Returns:
         By default, the rendered registration page.
-        If received valid POST form, the rendered login page.
+        If received valid POST form, the redirection to the login page.
 
     """
     form = RegistrationForm()
@@ -70,3 +70,14 @@ def register() -> Union[Response, str]:
         return redirect(url_for('login.index'))
     else:
         return render_template('register.html', form=form)
+
+@login.route('/log-out')
+def log_out() -> Response:
+    """Log out the current user and redirect to the login page.
+
+    Returns:
+        Redirection to the login page.
+
+    """
+    logout_user()
+    return redirect(url_for('login.index'))

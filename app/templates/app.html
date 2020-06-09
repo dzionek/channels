@@ -3,7 +3,6 @@
 {% block channels %}
     <ul class="list-group">
 
-
         {% for channel in channels %}
             <li class="list-group-item d-flex justify-content-between align-items-center channel" data-channel="{{ channel.name }}">
                 {{ channel.name }}
@@ -22,6 +21,10 @@
         <div>
             <h3><--- Choose a channel</h3>
         </div>
+        <button type="button" id="logout-button" class="btn btn-danger"
+                onclick="window.location.href='{{ url_for('login.log_out') }}'">
+            Log out
+        </button>
     </div>
     <div id="hide-switch-channel">
         <div id="messages-list">

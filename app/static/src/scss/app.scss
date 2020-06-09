@@ -51,6 +51,12 @@ $ui-height: 10vh;
     left: 50%;
     transform: translate(-50%, -50%);
   }
+  button {
+    position: absolute;
+    top: 50%;
+    left: 90%;
+    transform: translate(0, -50%);
+  }
 }
 
 #hide-switch-channel {

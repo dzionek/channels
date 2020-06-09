@@ -1,5 +1,6 @@
 import re
-from flask import jsonify, session
+from flask import jsonify
+from flask_login import current_user
 from datetime import datetime
 from typing import Any
 
@@ -104,7 +105,7 @@ def add_message(message_content: str, channel: str) -> None:
         channel: Channel the message should be added to.
 
     """
-    username = session['username']
+    username = current_user.username
     user_id = User.query.filter_by(username=username).first().id
 
     full_time = datetime.now()

@@ -1,16 +1,16 @@
 from flask import render_template, flash, url_for, redirect
 from flask_login import login_user, current_user
 
-from .base import login
-from .utils import set_up_app
+from typing import Union
+from werkzeug.wrappers import Response
 
-from app.bcrypt.utils import hash_password, check_hashed_password
+from .base import login
+from .utils import set_up_app, add_user, is_valid_user
 
 from app.forms.registration import RegistrationForm
 from app.forms.login import LoginForm
 
 from app.models.user import User
-from app.models.base import db
 
 """
 Routes for the functionality of the app related to login.
@@ -18,18 +18,20 @@ Routes for the functionality of the app related to login.
 
 @login.route('/', methods=['GET', 'POST'])
 def index() -> str:
-    """Login factory.
+    """Handle the login process.
 
     Opened with GET:
         Check if the user is logged in. If it is, redirect to the app.
         Otherwise, render template to log in.
 
     Opened with POST:
-        Get 'username' parameter from the POST form. Create or log in user of a given 'username'
-         and redirect her/him to app.
+        Get 'username' parameter from the POST form. Log in user of a given 'username'
+        and redirect her/him to app if she/he entered valid credentials. Otherwise, show
+        message that login was unsuccessful.
 
     Returns:
-        Template of the login page, or app page.
+        By default, the rendered login page.
+        If received valid POST form, the rendered app page.
 
     """
     if current_user.is_authenticated:
@@ -38,7 +40,7 @@ def index() -> str:
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user and check_hashed_password(user.password, form.password.data):
+        if is_valid_user(user, form):
             login_user(user=user, remember=form.remember)
             return set_up_app()
         else:
@@ -47,14 +49,24 @@ def index() -> str:
     return render_template('login.html', form=form)
 
 @login.route('/register', methods=['GET', 'POST'])
-def register() -> str:
+def register() -> Union[Response, str]:
+    """Handle the registration process.
+
+    Opened with GET:
+        Render the registration form.
+
+    Opened with POST:
+        Create the user and redirect to the login page. Otherwise, show what was invalid in the form.
+
+    Returns:
+        By default, the rendered registration page.
+        If received valid POST form, the rendered login page.
+
+    """
     form = RegistrationForm()
     if form.validate_on_submit():
-        hashed_password = hash_password(form.password.data)
-        db.session.add(User(
-            username=form.username.data, email=form.email.data, password=hashed_password
-        ))
-        db.session.commit()
+        add_user(form)
         flash(f'An account was successfully created for {form.username.data}!', 'success')
         return redirect(url_for('login.index'))
-    return render_template('register.html', form=form)
+    else:
+        return render_template('register.html', form=form)

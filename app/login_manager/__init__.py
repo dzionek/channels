@@ -4,7 +4,7 @@ from .base import login_manager
 from app.models.user import User
 
 """
-Module containing Login Manager initialization.
+Module containing Login Manager initialization with user loading.
 """
 
 def init_app(app: Flask) -> None:
@@ -18,4 +18,14 @@ def init_app(app: Flask) -> None:
 
 @login_manager.user_loader
 def load_user(user_id: int) -> User:
-    return User.query.get(user_id)
+    """Let the login manager load the user of the given id.
+
+    Args:
+        user_id: Id of the user to be loaded in
+
+    Returns:
+        The loaded user.
+
+    """
+    user: User = User.query.get(user_id)
+    return user

@@ -12,6 +12,7 @@ class LoginForm(FlaskForm):
     Fields:
         email: Email of the user.\n
         password: Password of the user.\n
+        remember: Checkbox saying if the app should remember that the user is logged in.
         submit: Submit the form.\n
 
     """

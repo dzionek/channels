@@ -14,7 +14,8 @@ def hash_password(password: str) -> str:
         Hashed password.
 
     """
-    return bcrypt.generate_password_hash(password).decode('utf-8')
+    hashed_password: str = bcrypt.generate_password_hash(password).decode('utf-8')
+    return hashed_password
 
 
 def check_hashed_password(hashed_password: str, password: str) -> bool:
@@ -28,4 +29,5 @@ def check_hashed_password(hashed_password: str, password: str) -> bool:
         True if two passwords are the same, False otherwise.
 
     """
-    return bcrypt.check_password_hash(hashed_password, password)
+    matching: bool = bcrypt.check_password_hash(hashed_password, password)
+    return matching

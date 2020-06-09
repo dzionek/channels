@@ -1,4 +1,5 @@
 from flask import session, render_template
+from flask_login import current_user
 
 from app.models.channel import Channel
 from app.models.message import Message
@@ -36,11 +37,9 @@ def set_up_app() -> str:
     Returns:
         Rendered template of the main app.
     """
-    username = session['username']
-
     channels = Channel.query.all()
     messages = Message.query.all()
 
     return render_template(
-        'app.html', username=username, channels=channels, messages=messages
+        'app.html', username=current_user, channels=channels, messages=messages
     )

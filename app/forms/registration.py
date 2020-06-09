@@ -1,6 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
-from wtforms.validators import Length, EqualTo, DataRequired, Email
+from wtforms.validators import Length, EqualTo, DataRequired, Email, ValidationError
+
+from app.models.user import User
 
 """
 Module containing the registration form.
@@ -24,3 +26,13 @@ class RegistrationForm(FlaskForm):
         DataRequired(), EqualTo('password', message='Passwords must match')
     ])
     submit = SubmitField('Register')
+
+    def validate_username(self, username: StringField) -> None:
+        user = User.query.filter_by(username=username.data).first()
+        if user:
+            raise ValidationError('This username is taken. Choose a different one.')
+
+    def validate_email(self, email: StringField) -> None:
+        user = User.query.filter_by(email=email.data).first()
+        if user:
+            raise ValidationError('This email is taken. Choose a different one.')

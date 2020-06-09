@@ -1,9 +1,14 @@
 from flask import render_template, flash, url_for, redirect
+from flask_login import login_user, current_user
 
 from .base import login
-from .utils import log_in, is_logged, set_up_app
+from .utils import set_up_app
+
+from app.bcrypt.utils import hash_password, check_hashed_password
+
 from app.forms.registration import RegistrationForm
 from app.forms.login import LoginForm
+
 from app.models.user import User
 from app.models.base import db
 
@@ -27,20 +32,17 @@ def index() -> str:
         Template of the login page, or app page.
 
     """
-    form = LoginForm()
+    if current_user.is_authenticated:
+        return set_up_app()
 
+    form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(email=form.email.data).first()
-        if user:
-            if user.password == form.password.data:
-                return log_in(user.username)
-            else:
-                flash('Login Unsuccessful. Incorrect email or password', 'danger')
+        if user and check_hashed_password(user.password, form.password.data):
+            login_user(user=user, remember=form.remember)
+            return set_up_app()
         else:
             flash('Login Unsuccessful. Incorrect email or password', 'danger')
-    else:
-        if is_logged():
-            return set_up_app()
 
     return render_template('login.html', form=form)
 
@@ -48,8 +50,9 @@ def index() -> str:
 def register() -> str:
     form = RegistrationForm()
     if form.validate_on_submit():
+        hashed_password = hash_password(form.password.data)
         db.session.add(User(
-            username=form.username.data, email=form.email.data, password=form.password.data
+            username=form.username.data, email=form.email.data, password=hashed_password
         ))
         db.session.commit()
         flash(f'An account was successfully created for {form.username.data}!', 'success')

@@ -15,6 +15,8 @@ def init_app(app: Flask) -> None:
 
     """
     login_manager.init_app(app)
+    login_manager.login_view = 'login.index'
+    login_manager.login_message_category = 'info'
 
 @login_manager.user_loader
 def load_user(user_id: int) -> User:

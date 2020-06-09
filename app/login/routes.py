@@ -1,5 +1,5 @@
-from flask import render_template, flash, url_for, redirect
-from flask_login import login_user, current_user, logout_user
+from flask import render_template, flash, url_for, redirect, request
+from flask_login import login_user, current_user, logout_user, login_required
 
 from typing import Union
 from werkzeug.wrappers import Response
@@ -17,7 +17,7 @@ Routes for the functionality of the app related to login.
 """
 
 @login.route('/', methods=['GET', 'POST'])
-def index() -> str:
+def index() -> Union[Response, str]:
     """Handle the login process.
 
     Opened with GET:
@@ -42,7 +42,8 @@ def index() -> str:
         user = User.query.filter_by(email=form.email.data).first()
         if is_valid_user(user, form):
             login_user(user=user, remember=form.remember)
-            return set_up_app()
+            next_page = request.args.get('next')
+            return redirect(next_page) if next_page else set_up_app()
         else:
             flash('Login Unsuccessful. Incorrect email or password', 'danger')
 
@@ -81,3 +82,8 @@ def log_out() -> Response:
     """
     logout_user()
     return redirect(url_for('login.index'))
+
+@login.route('/profile')
+@login_required
+def profile() -> str:
+    return render_template('profile.html')

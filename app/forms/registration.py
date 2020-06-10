@@ -1,3 +1,4 @@
+from sqlalchemy import func
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import Length, EqualTo, DataRequired, Email, ValidationError
@@ -39,7 +40,7 @@ class RegistrationForm(FlaskForm):
             ValidationError: If the username is invalid.
 
         """
-        user = User.query.filter_by(username=username.data).first()
+        user = User.query.filter(func.lower(User.username) == func.lower(username.data)).first()
         if user:
             raise ValidationError('This username is taken. Choose a different one.')
 
@@ -55,6 +56,6 @@ class RegistrationForm(FlaskForm):
             ValidationError: If the email is invalid.
 
         """
-        user = User.query.filter_by(email=email.data).first()
+        user = User.query.filter(func.lower(User.email) == func.lower(email.data)).first()
         if user:
             raise ValidationError('This email is taken. Choose a different one.')

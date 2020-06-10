@@ -1,0 +1,26 @@
+{% extends 'main-layout.html' %}
+
+{% block imports %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='dist/css/settings.css') }}">
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-2"></div>
+            <div id="settings-container" class="col-md-8">
+                <div class="media">
+                    <img src="{{ url_for('static', filename='img/profile_pictures') }}/{{ current_user.profile_picture }}"
+                         class="rounded img-thumbnail mr-3" alt="Your profile picture">
+                    <div class="media-body">
+                        <h1 class="mt-0">{{ current_user.username }}</h1>
+                        Email address: <span class="ml-2">{{ current_user.email }}</span><br>
+                        All channels: <span class="ml-2">{{ all_channels }}</span><br>
+                        All messages: <span class="ml-2">{{ all_messages }}</span><br>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-2"></div>
+        </div>
+    </div>
+{% endblock %}

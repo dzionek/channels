@@ -62,3 +62,23 @@ def is_valid_user(user: Optional[User], form: LoginForm) -> bool:
         return check_hashed_password(user.password, form.password.data)
     else:
         return False
+
+def get_number_of_all_messages() -> int:
+    """Get the number of all channels that the given user has sent.
+
+    Returns:
+        The number of all messages of the user.
+
+    """
+    number_of_all_messages: int = Message.query.filter_by(user_id=current_user.id).count()
+    return number_of_all_messages
+
+def get_number_of_all_channels() -> int:
+    """Get the number of all channels.
+
+    Returns:
+        The number of all channels.
+
+    """
+    number_of_all_channels: int = Channel.query.count()
+    return number_of_all_channels

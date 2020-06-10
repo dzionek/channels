@@ -17,14 +17,21 @@
 {% endblock %}
 
 {% block messages %}
-    <div id="channel-info">
-        <div>
+    <div id="channel-info" class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
             <h3><--- Choose a channel</h3>
         </div>
-        <button type="button" id="logout-button" class="btn btn-danger"
-                onclick="window.location.href='{{ url_for('login.log_out') }}'">
-            Log out
-        </button>
+        <div id="buttons-div" class="col-lg-3">
+            <button type="button" id="logout-button" class="btn btn-warning"
+                    onclick="window.location.href='{{ url_for('login.settings') }}'">
+                Settings
+            </button>
+            <button type="button" id="logout-button" class="btn btn-danger ml-2"
+                    onclick="window.location.href='{{ url_for('login.log_out') }}'">
+                Log out
+            </button>
+        </div>
     </div>
     <div id="hide-switch-channel">
         <div id="messages-list">

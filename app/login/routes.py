@@ -5,7 +5,7 @@ from typing import Union
 from werkzeug.wrappers import Response
 
 from .base import login
-from .utils import set_up_app, add_user, is_valid_user
+from .utils import set_up_app, add_user, is_valid_user, get_number_of_all_messages, get_number_of_all_channels
 
 from app.forms.registration import RegistrationForm
 from app.forms.login import LoginForm
@@ -83,7 +83,15 @@ def log_out() -> Response:
     logout_user()
     return redirect(url_for('login.index'))
 
-@login.route('/profile')
+@login.route('/settings')
 @login_required
-def profile() -> str:
-    return render_template('profile.html')
+def settings() -> str:
+    """Render the settings page when the user is logged in.
+
+    Returns:
+        The rendered settings page
+
+    """
+    all_messages = get_number_of_all_messages()
+    all_channels = get_number_of_all_channels()
+    return render_template('settings.html', all_messages=all_messages, all_channels=all_channels)

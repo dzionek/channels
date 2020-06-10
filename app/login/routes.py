@@ -6,7 +6,7 @@ from werkzeug.wrappers import Response
 
 from .base import login
 from .utils import set_up_app, add_user, is_valid_user, get_number_of_all_messages, get_number_of_all_channels,\
-    update_user, save_profile_picture
+    update_user, save_profile_picture, remove_old_profile_picture
 
 from app.forms.registration import RegistrationForm
 from app.forms.login import LoginForm
@@ -100,6 +100,7 @@ def settings() -> str:
     form = UpdateProfileForm()
     if form.validate_on_submit():
         if form.profile_picture.data:
+            remove_old_profile_picture()
             profile_picture = save_profile_picture(form.profile_picture.data)
             current_user.profile_picture = profile_picture
         update_user(form.username.data, form.email.data)

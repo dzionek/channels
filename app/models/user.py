@@ -2,6 +2,8 @@ from flask_login import UserMixin
 
 from .base import db
 
+DEFAULT_PROFILE_PICTURE = 'default.png'
+
 class User(db.Model, UserMixin):
     """Model of the user of the app.
 
@@ -21,7 +23,7 @@ class User(db.Model, UserMixin):
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String, unique=True, nullable=False)
     password = db.Column(db.String(60), nullable=False)
-    profile_picture = db.Column(db.String(20), nullable=False, default='default.png')
+    profile_picture = db.Column(db.String(20), nullable=False, default=DEFAULT_PROFILE_PICTURE)
     messages = db.relationship('Message', backref='user', lazy=True)
 
     def __repr__(self) -> str:

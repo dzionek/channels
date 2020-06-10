@@ -5,10 +5,12 @@ from typing import Union
 from werkzeug.wrappers import Response
 
 from .base import login
-from .utils import set_up_app, add_user, is_valid_user, get_number_of_all_messages, get_number_of_all_channels
+from .utils import set_up_app, add_user, is_valid_user, get_number_of_all_messages, get_number_of_all_channels,\
+    update_user, save_profile_picture
 
 from app.forms.registration import RegistrationForm
 from app.forms.login import LoginForm
+from app.forms.update_profile import UpdateProfileForm
 
 from app.models.user import User
 
@@ -83,15 +85,28 @@ def log_out() -> Response:
     logout_user()
     return redirect(url_for('login.index'))
 
-@login.route('/settings')
+@login.route('/settings', methods=['GET', 'POST'])
 @login_required
 def settings() -> str:
     """Render the settings page when the user is logged in.
 
     Returns:
-        The rendered settings page
+        The rendered settings page.
 
     """
     all_messages = get_number_of_all_messages()
     all_channels = get_number_of_all_channels()
-    return render_template('settings.html', all_messages=all_messages, all_channels=all_channels)
+
+    form = UpdateProfileForm()
+    if form.validate_on_submit():
+        if form.profile_picture.data:
+            profile_picture = save_profile_picture(form.profile_picture.data)
+            current_user.profile_picture = profile_picture
+        update_user(form.username.data, form.email.data)
+        flash('Your profile has been successfully updated.', 'success')
+        return redirect(url_for('login.settings'))
+    elif request.method == 'GET':
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+
+    return render_template('settings.html', all_messages=all_messages, all_channels=all_channels, form=form)

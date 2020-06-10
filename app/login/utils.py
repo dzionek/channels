@@ -1,6 +1,12 @@
+from secrets import token_hex
+from os import path
+from PIL import Image
+
 from flask import render_template
 from flask_login import current_user
+
 from typing import Optional
+from werkzeug.datastructures import FileStorage
 
 from app.bcrypt.utils import hash_password, check_hashed_password
 
@@ -82,3 +88,39 @@ def get_number_of_all_channels() -> int:
     """
     number_of_all_channels: int = Channel.query.count()
     return number_of_all_channels
+
+def update_user(username: str, email: str) -> None:
+    """Update the current user setting her/him the given username and email.
+    Commit all the changes to database, including the change of the profile picture.
+
+    Args:
+        username: The new username of the current user.
+        email: The new email of the current user.
+
+    """
+    current_user.username = username
+    current_user.email = email
+    db.session.commit()
+
+def save_profile_picture(picture: FileStorage) -> str:
+    """Save the given profile picture on the server and returns its relative path.
+    The root directory is the one where all profile pictures are stored.
+    The change is committed to the DB in update_user function.
+
+    Args:
+        picture: The profile picture to be saved.
+
+    Returns:
+        The relative path to the profile picture.
+
+    """
+    random_hex = token_hex(8)
+    _, file_extension = path.splitext(picture.filename)
+    picture_filename = random_hex + file_extension
+    picture_path = path.join('app', 'static', 'img', 'profile_pictures', picture_filename)
+
+    output_size = (125, 125)
+    image = Image.open(picture)
+    image.thumbnail(output_size)
+    image.save(picture_path)
+    return picture_filename

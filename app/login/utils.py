@@ -133,7 +133,8 @@ def save_profile_picture(picture: FileStorage) -> str:
 
     """
     random_hex = token_hex(8)
-    _, file_extension = path.splitext(picture.filename)
+    _, file_extension = path.splitext(picture.filename)  # type: ignore
+    assert isinstance(file_extension, str)
     picture_filename = random_hex + file_extension
     picture_path = get_profile_picture_full_path(picture_filename)
 

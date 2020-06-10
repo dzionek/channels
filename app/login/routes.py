@@ -87,7 +87,7 @@ def log_out() -> Response:
 
 @login.route('/settings', methods=['GET', 'POST'])
 @login_required
-def settings() -> str:
+def settings() -> Union[str, Response]:
     """Render the settings page when the user is logged in.
 
     Returns:

@@ -23,11 +23,11 @@ npm install --save
 npm run build
 ```
 
-Create [PostgreSQL](https://www.postgresql.org) database and save your DATABASE_URI in *secrets.py* along with your SECRET_KEY for administering the app.
+Create [PostgreSQL](https://www.postgresql.org) database and save your DATABASE_URI in *secret_config.py* along with your SECRET_KEY for administering the app.
 
 ```bash
-echo 'DATABASE_URI = "postgres://{USER}:{PASSWORD}@{HOSTNAME}:{PORT}/{DB NAME}"' >> secrets.py
-echo 'SECRET_KEY = "{YOUR SECRET KEY}"' >> secrets.py
+echo 'DATABASE_URI = "postgres://{USER}:{PASSWORD}@{HOSTNAME}:{PORT}/{DB NAME}"' >> secret_config.py
+echo 'SECRET_KEY = "{YOUR SECRET KEY}"' >> secret_config.py
 ```
 
 ## Run

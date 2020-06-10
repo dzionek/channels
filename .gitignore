@@ -2,7 +2,7 @@
 .idea/
 venv/
 node_modules
-secrets.py
+secret_config.py
 flask_session
 app/static/dist
 execute.sql

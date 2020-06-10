@@ -1,6 +1,6 @@
 from flask import Flask
 
-from secrets import DATABASE_URI, SECRET_KEY
+from secret_config import DATABASE_URI, SECRET_KEY
 
 """
 Module containing settings of the app.

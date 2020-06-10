@@ -1,7 +1,7 @@
 from app.bcrypt.utils import check_hashed_password, hash_password
 
 class TestUtils:
-    def test_hash_password(self):
+    def test_hash_password(self) -> None:
         p1 = 'first password'
         p2 = ' '
         p3 = '123123123'

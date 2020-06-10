@@ -1,4 +1,5 @@
 from flask import Flask
+from typing import Optional
 
 from .base import login_manager
 from app.models.user import User
@@ -19,15 +20,15 @@ def init_app(app: Flask) -> None:
     login_manager.login_message_category = 'info'
 
 @login_manager.user_loader
-def load_user(user_id: int) -> User:
-    """Let the login manager load the user of the given id.
+def load_user(user_id: str) -> Optional[User]:
+    """Let the login manager load the user of the given id if she/he exists.
 
     Args:
-        user_id: Id of the user to be loaded in
+        user_id: Id of the candidate user to be loaded in.
 
     Returns:
-        The loaded user.
+        The loaded user or None.
 
     """
-    user: User = User.query.get(user_id)
+    user: Optional[User] = User.query.get(int(user_id))
     return user

@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from sqlalchemy import func
 from wtforms import StringField, SubmitField, ValidationError
 from flask_wtf.file import FileField, FileAllowed
 from wtforms.validators import DataRequired, Length, Email
@@ -28,7 +29,7 @@ class UpdateProfileForm(FlaskForm):
             ValidationError: If the username is invalid.
 
         """
-        user = User.query.filter_by(username=username.data).first()
+        user = User.query.filter(func.lower(User.username) == func.lower(username.data)).first()
         if user != current_user:
             if user:
                 raise ValidationError('This username is taken. Choose a different one.')
@@ -45,7 +46,7 @@ class UpdateProfileForm(FlaskForm):
             ValidationError: If the email is invalid.
 
         """
-        user = User.query.filter_by(email=email.data).first()
+        user = User.query.filter(func.lower(User.email) == func.lower(email.data)).first()
         if user != current_user:
             if user:
                 raise ValidationError('This email is taken. Choose a different one.')

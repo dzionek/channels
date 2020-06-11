@@ -7,8 +7,13 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            <div class="col-md-2"></div>
-            <div id="settings-container" class="col-md-8">
+            <div class="col-md-2 settings-data center">
+                <button type="button" id="logout-button" class="btn btn-warning"
+                        onclick="window.location.href='{{ url_for('login.index') }}'">
+                    Back to app
+                </button>
+            </div>
+            <div id="settings-container" class="col-md-8 settings-data">
                 <div class="media">
                     <img src="{{ url_for('static', filename='img/profile_pictures') }}/{{ current_user.profile_picture }}"
                          class="rounded img-thumbnail mr-3" alt="Your profile picture">

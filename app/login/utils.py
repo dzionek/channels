@@ -135,7 +135,7 @@ def make_square(image: Image) -> Image:
     """
     x, y = image.size
     fill_color = (255, 255, 255, 0)  # white
-    new_image = Image.new('RGBA', (IMAGE_SIDE_SIZE, IMAGE_SIDE_SIZE), fill_color)
+    new_image = Image.new('RGB', (IMAGE_SIDE_SIZE, IMAGE_SIDE_SIZE), fill_color)
     new_image.paste(image, (int((IMAGE_SIDE_SIZE - x) / 2), int((IMAGE_SIDE_SIZE - y) / 2)))
     return new_image
 

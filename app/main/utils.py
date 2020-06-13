@@ -108,7 +108,8 @@ def add_message(message_content: str, channel: str) -> None:
 
     """
     username = current_user.username
-    user_id = User.query.filter_by(username=username).first().id
+    user_id = current_user.id
+    user_picture = f"{url_for('static', filename='img/profile_pictures')}/{ current_user.profile_picture }"
 
     full_time = datetime.now()
 
@@ -119,4 +120,4 @@ def add_message(message_content: str, channel: str) -> None:
     ))
 
     db.session.commit()
-    announce_message(username, pretty_time(full_time), channel, message_content)
+    announce_message(username, user_picture, pretty_time(full_time), channel, message_content)

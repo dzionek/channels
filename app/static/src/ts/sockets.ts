@@ -22,9 +22,9 @@ interface ChannelSocketResponse {
  * JSON response emitted after sending a message.
  */
 interface MessageSocketResponse {
-    readonly user: string
+    readonly userName: string
+    readonly userPicture: string
     readonly time: string
-    readonly channel: string
     readonly messageContent: string
 }
 
@@ -60,6 +60,6 @@ function show_added_channel(): void {
  */
 function show_added_message(): void {
     socket.on('announce message', (data: MessageSocketResponse) => {
-        appendMessage(data.user, data.time, data.messageContent)
+        appendMessage(data.userName, data.userPicture, data.time, data.messageContent)
     })
 }

@@ -56,6 +56,13 @@ $ui-height: 10vh;
   overflow-y: scroll;
   padding-top: 2.5vh;
   padding-bottom: 2.5vh;
+  img {
+    height: 60px;
+    width: auto;
+  }
+  small {
+    text-align: right;
+  }
 }
 
 #messages-input {

@@ -13,7 +13,8 @@ let currentChannel: string = undefined
  * JSON response of the single message.
  */
 interface SingleMessage {
-    readonly user: string
+    readonly userName: string
+    readonly userPicture: string
     readonly content: string
     readonly time: string
 }
@@ -62,14 +63,16 @@ function showChannelTitle(): void {
 
 /**
  * Append a given message to the div of all messages.
- * @param user  name of the user who sent that message.
+ * @param userName  name of the user who sent that message.
+ * @param userPicture  profile picture of the user.
  * @param time  time when the message was sent.
  * @param content  content of the message.
  */
-export function appendMessage(user: string, time: string, content: string): void {
-    const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
+export function appendMessage(userName: string, userPicture: string, time: string, content: string): void {
+    const messagesDiv: HTMLDivElement = document.querySelector('#messages-list ul')
     messagesDiv.innerHTML += messageTemplate({
-        'user': user,
+        'userName': userName,
+        'userPicture': userPicture,
         'time': time,
         'content': content
     })
@@ -81,9 +84,9 @@ export function appendMessage(user: string, time: string, content: string): void
  */
 function showChannelsMessages(responseMessages: Messages): void {
     const messages: SingleMessage[] = responseMessages.messages
-    const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
-    messagesDiv.innerHTML = ''
-    messages.forEach(message => appendMessage(message.user, message.time, message.content))
+    const messagesList: HTMLDivElement = document.querySelector('#messages-list ul')
+    messagesList.innerHTML = ''
+    messages.forEach(message => appendMessage(message.userName, message.userPicture, message.time, message.content))
 }
 
 /**

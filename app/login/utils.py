@@ -5,7 +5,7 @@ from PIL import Image
 from flask import render_template
 from flask_login import current_user
 
-from typing import Optional
+from typing import Optional, Final
 from werkzeug.datastructures import FileStorage
 
 from app.bcrypt.utils import hash_password, check_hashed_password
@@ -21,6 +21,8 @@ from app.models.user import User, DEFAULT_PROFILE_PICTURE
 """
 Utility functions for login routes.
 """
+
+IMAGE_SIDE_SIZE: Final = 125
 
 def set_up_app() -> str:
     """Get username, channels and messages from database and render the main app
@@ -120,6 +122,23 @@ def remove_old_profile_picture() -> None:
         old_profile_picture_path = get_profile_picture_full_path(current_user.profile_picture)
         remove(old_profile_picture_path)
 
+def make_square(image: Image) -> Image:
+    """Make the given picture a square picture.
+    The blank pixels are filled with white.
+
+    Args:
+        image: Image to be transformed to a square image.
+
+    Returns:
+        The transformed square image.
+
+    """
+    x, y = image.size
+    fill_color = (255, 255, 255, 0)  # white
+    new_image = Image.new('RGBA', (IMAGE_SIDE_SIZE, IMAGE_SIDE_SIZE), fill_color)
+    new_image.paste(image, (int((IMAGE_SIDE_SIZE - x) / 2), int((IMAGE_SIDE_SIZE - y) / 2)))
+    return new_image
+
 def save_profile_picture(picture: FileStorage) -> str:
     """Save the given profile picture on the server and returns its relative path.
     The root directory is the one where all profile pictures are stored.
@@ -134,12 +153,15 @@ def save_profile_picture(picture: FileStorage) -> str:
     """
     random_hex = token_hex(8)
     _, file_extension = path.splitext(picture.filename)  # type: ignore
-    assert isinstance(file_extension, str)
+    assert isinstance(file_extension, str)  # for Mypy type checking
     picture_filename = random_hex + file_extension
     picture_path = get_profile_picture_full_path(picture_filename)
 
-    output_size = (125, 125)
+    output_size = (IMAGE_SIDE_SIZE, IMAGE_SIDE_SIZE)
     image = Image.open(picture)
     image.thumbnail(output_size)
-    image.save(picture_path)
+
+    square_image = make_square(image)
+    square_image.save(picture_path)
+
     return picture_filename

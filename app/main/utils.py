@@ -1,5 +1,5 @@
 import re
-from flask import jsonify
+from flask import jsonify, url_for
 from flask_login import current_user
 from datetime import datetime
 from typing import Any
@@ -88,7 +88,9 @@ def get_messages(channel_name: str) -> Any:
     messages = channel.messages
     messages_response = [
         {
-            'user': User.query.filter_by(id=message.user_id).first().username,
+            'userName': User.query.filter_by(id=message.user_id).first().username,
+            'userPicture': f"{url_for('static', filename='img/profile_pictures')}/"
+                           f"{ User.query.filter_by(id=message.user_id).first().profile_picture }",
             'content': message.content,
             'time': pretty_time(message.time)
         }

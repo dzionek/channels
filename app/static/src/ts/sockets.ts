@@ -1,5 +1,5 @@
 import io from 'socket.io-client'
-import {channelSwitcher, appendMessage} from './messages'
+import {channelSwitcher, appendMessageBottom} from './messages'
 
 /**
  * Module handling Socket.IO with callback functions when certain socket was triggered.
@@ -60,6 +60,6 @@ function show_added_channel(): void {
  */
 function show_added_message(): void {
     socket.on('announce message', (data: MessageSocketResponse) => {
-        appendMessage(data.userName, data.userPicture, data.time, data.messageContent)
+        appendMessageBottom(data.userName, data.userPicture, data.time, data.messageContent)
     })
 }

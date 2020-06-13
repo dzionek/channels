@@ -1,3 +1,4 @@
+import {sleep} from './utils'
 /**
  * Module responsible for showing messages after clicking on their channel
  * and for sending a message.
@@ -8,6 +9,8 @@ const messageTemplate = require('../../handlebars/message.handlebars')
 
 /** Global variable to monitor the channel the user is currently looking at. */
 let currentChannel: string = undefined
+
+let messageCounter = 0
 
 /**
  * JSON response of the single message.
@@ -26,6 +29,21 @@ interface Messages {
     readonly messages: SingleMessage[]
 }
 
+function getInitialMessageCounter(channelName: string): Promise<number> {
+    return new Promise<number>(resolve => {
+        const xhr: XMLHttpRequest = new XMLHttpRequest()
+        xhr.open('POST', '/get-messages')
+        xhr.responseType = 'json'
+        xhr.onload = () => {
+            console.log(`Initial counter ${xhr.response.counter}`)
+            resolve(xhr.response.counter)
+        }
+        const data: FormData = new FormData()
+        data.append('channelName', currentChannel)
+        xhr.send(data)
+    })
+}
+
 /**
  * Get response with the message of the given channel.
  * @param channelName  name of the channel which messages will be displayed.
@@ -41,6 +59,7 @@ function getResponseMessages(channelName: string): Promise<Messages> {
         }
         const data: FormData = new FormData()
         data.append('channelName', channelName)
+        data.append('counter', messageCounter.toString())
         xhr.send(data)
     })
 }
@@ -76,7 +95,7 @@ function scroll_to_last_message(messagesDiv: HTMLDivElement): void {
  * @param time  time when the message was sent.
  * @param content  content of the message.
  */
-export function appendMessage(userName: string, userPicture: string, time: string, content: string): void {
+export function appendMessageBottom(userName: string, userPicture: string, time: string, content: string): void {
     const messagesList: HTMLUListElement = document.querySelector('#messages-list ul')
     messagesList.innerHTML += messageTemplate({
         'userName': userName,
@@ -88,6 +107,32 @@ export function appendMessage(userName: string, userPicture: string, time: strin
     scroll_to_last_message(messagesDiv)
 }
 
+function appendMessageTop(userName: string, userPicture: string, time: string, content: string): void {
+    const messagesList: HTMLUListElement = document.querySelector('#messages-list ul')
+    messagesList.innerHTML = messageTemplate({
+        'userName': userName,
+        'userPicture': userPicture,
+        'time': time,
+        'content': content
+    }) + messagesList.innerHTML
+}
+
+function loadMoreMessages(): void {
+    const messagesDiv: HTMLDivElement = document.querySelector('messages-list')
+    messagesDiv.addEventListener('scroll', async () => {
+        if (messagesDiv.scrollTop === 0 && messageCounter != 0) {
+            messagesDiv.scrollTop = 100
+            messageCounter = Math.min(messageCounter - 20, 0)
+            const messagesResponse: Messages = await getResponseMessages(currentChannel)
+            const messages: SingleMessage[] = messagesResponse.messages
+            messages.forEach(message =>
+                appendMessageTop(message.userName, message.userPicture, message.time, message.content)
+            )
+            await sleep(1000)
+        }
+    })
+}
+
 /**
  * Show the given messages that belong to the {@link currentChannel}.
  * @param responseMessages  messages of the {@link currentChannel}.
@@ -96,7 +141,7 @@ function showChannelsMessages(responseMessages: Messages): void {
     const messages: SingleMessage[] = responseMessages.messages
     const messagesList: HTMLDivElement = document.querySelector('#messages-list ul')
     messagesList.innerHTML = ''
-    messages.forEach(message => appendMessage(message.userName, message.userPicture, message.time, message.content))
+    messages.forEach(message => appendMessageBottom(message.userName, message.userPicture, message.time, message.content))
 }
 
 /**
@@ -109,8 +154,11 @@ function switchChannel(channel: HTMLElement): void {
         currentChannel = this.dataset.channel
         showChannelTitle()
 
+        messageCounter = await getInitialMessageCounter(currentChannel)
+
         const responseMessages: Messages = await getResponseMessages(currentChannel)
         showChannelsMessages(responseMessages)
+        loadMoreMessages()
     })
 }
 

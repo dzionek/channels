@@ -62,6 +62,14 @@ function showChannelTitle(): void {
 }
 
 /**
+ * Scroll down to the last message.
+ * @param messagesDiv  div where all messages are located.
+ */
+function scroll_to_last_message(messagesDiv: HTMLDivElement): void {
+    messagesDiv.scrollTop = messagesDiv.scrollHeight
+}
+
+/**
  * Append a given message to the div of all messages.
  * @param userName  name of the user who sent that message.
  * @param userPicture  profile picture of the user.
@@ -69,13 +77,15 @@ function showChannelTitle(): void {
  * @param content  content of the message.
  */
 export function appendMessage(userName: string, userPicture: string, time: string, content: string): void {
-    const messagesDiv: HTMLDivElement = document.querySelector('#messages-list ul')
-    messagesDiv.innerHTML += messageTemplate({
+    const messagesList: HTMLUListElement = document.querySelector('#messages-list ul')
+    messagesList.innerHTML += messageTemplate({
         'userName': userName,
         'userPicture': userPicture,
         'time': time,
         'content': content
     })
+    const messagesDiv = messagesList.parentElement as HTMLDivElement
+    scroll_to_last_message(messagesDiv)
 }
 
 /**

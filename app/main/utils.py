@@ -75,20 +75,23 @@ def pretty_time(full_time: datetime) -> str:
     return full_time_str[:length_boundary]
 
 def get_messages(channel_name: str, counter: int) -> Any:
-    """Get messages of the given channel and return them in JSON format.
+    """Get the messages of the given channel and return them in JSON format.
+    The function supports dynamic loading and will return only a specified number of messages.
+    The last message to be loaded is given by the argument "counter".
 
     Args:
         channel_name: Name of the channel which messages the function should look for.
-        counter: Index of the first message to be displayed.
-            Note that the list of messages must be inverted.
+        counter: Id of the last message to be displayed.
 
     Returns:
         JSON response with all data about messages of the channel.
 
     """
+    num_messages_loaded_at_once = 20
+
     channel = Channel.query.filter_by(name=channel_name).first()
     messages = channel.messages
-    print(f'Counter at {counter}')
+
     messages_response = [
         {
             'userName': User.query.filter_by(id=message.user_id).first().username,
@@ -97,7 +100,7 @@ def get_messages(channel_name: str, counter: int) -> Any:
             'content': message.content,
             'time': pretty_time(message.time)
         }
-        for message in messages[max(counter - 20, 0):counter]
+        for message in messages[max(counter - num_messages_loaded_at_once, 0):counter]
     ]
     return jsonify({'messages': messages_response})
 

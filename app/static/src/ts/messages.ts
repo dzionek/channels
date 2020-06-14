@@ -7,10 +7,14 @@ import {sleep} from './utils'
 /** Handlebars HTML template of the message. */
 const messageTemplate = require('../../handlebars/message.handlebars')
 
-/** Global variable to monitor the channel the user is currently looking at. */
-let currentChannel: string = undefined
+/** Number of messages displayed after loading dynamically. */
+const NUM_MESSAGES = 20
 
-let messageCounter = 0
+/** Global variable to monitor the channel the user is currently looking at. */
+let currentChannel: string
+
+/** Global variable with the id of the next message to be dynamically loaded in a channel. */
+let messageCounter: number
 
 /**
  * JSON response of the single message.
@@ -29,29 +33,37 @@ interface Messages {
     readonly messages: SingleMessage[]
 }
 
+/**
+ * Get the initial {@link messageCounter} of the given channel.
+ * @param channelName  name of the channel which initial counter the function should find.
+ * @return Promise with the initial counter of the channel.
+ */
 function getInitialMessageCounter(channelName: string): Promise<number> {
     return new Promise<number>(resolve => {
-        const xhr: XMLHttpRequest = new XMLHttpRequest()
+        const xhr = new XMLHttpRequest()
         xhr.open('POST', '/initial-counter')
         xhr.responseType = 'json'
+
         xhr.onload = () => {
-            console.log(`Initial counter ${xhr.response.counter}`)
             resolve(xhr.response.counter)
         }
-        const data: FormData = new FormData()
-        data.append('channelName', currentChannel)
+
+        const data = new FormData()
+        data.append('channelName', channelName)
         xhr.send(data)
     })
 }
 
 /**
- * Get response with the message of the given channel.
+ * Get response with the messages of the given channel. Number of messages to be loaded
+ * is {@link NUM_MESSAGES} and the id of the last message to be loaded is {@link messageCounter}.
+ *
  * @param channelName  name of the channel which messages will be displayed.
  * @return Promise with the messages packed in JSON.
  */
 function getResponseMessages(channelName: string): Promise<Messages> {
     return new Promise<Messages>(resolve => {
-        const xhr: XMLHttpRequest = new XMLHttpRequest()
+        const xhr = new XMLHttpRequest()
         xhr.open('POST', '/get-messages')
         xhr.responseType = 'json'
         xhr.onload = () => {
@@ -89,7 +101,9 @@ function scroll_to_last_message(messagesDiv: HTMLDivElement): void {
 }
 
 /**
- * Append a given message to the div of all messages.
+ * Append a given message to the div of all messages below all current messages.
+ * After appending the message, scroll down to show the message.
+ *
  * @param userName  name of the user who sent that message.
  * @param userPicture  profile picture of the user.
  * @param time  time when the message was sent.
@@ -107,6 +121,13 @@ export function appendMessageBottom(userName: string, userPicture: string, time:
     scroll_to_last_message(messagesDiv)
 }
 
+/**
+ * Append a given message to the div of all messages above all current messages.
+ * @param userName  name of the user who sent that message.
+ * @param userPicture  profile picture of the user.
+ * @param time  time when the message was sent.
+ * @param content  content of the message.
+ */
 function appendMessageTop(userName: string, userPicture: string, time: string, content: string): void {
     const messagesList: HTMLUListElement = document.querySelector('#messages-list ul')
     messagesList.innerHTML = messageTemplate({
@@ -117,19 +138,36 @@ function appendMessageTop(userName: string, userPicture: string, time: string, c
     }) + messagesList.innerHTML
 }
 
-function loadMoreMessages(): void {
+/**
+ * Load more messages and append each of them to the messages' div.
+ * Note that we need to make sure the scroll of the div is fixed.
+ * Also, we need to sleep for some time to avoid loading many times at once.
+ *
+ * @param messagesDiv  div where all messages are located.
+ */
+async function loadMessagesListener(messagesDiv: HTMLDivElement): Promise<void> {
+    const oldDivScrollHeight = messagesDiv.scrollHeight
+
+    messageCounter = Math.max(messageCounter - NUM_MESSAGES, 0)
+    await sleep(1500)
+
+    const messagesResponse: Messages = await getResponseMessages(currentChannel)
+    const messages: SingleMessage[] = messagesResponse.messages.reverse()
+    messages.forEach(message =>
+        appendMessageTop(message.userName, message.userPicture, message.time, message.content)
+    )
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight - oldDivScrollHeight
+}
+
+/**
+ * Call {@link loadMessagesListener} when the user scrolled to the top of the messages' div.
+ */
+function loadMessagesAddEventListener(): void {
     const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
     messagesDiv.addEventListener('scroll', async () => {
         if (messagesDiv.scrollTop === 0 && messageCounter != 0) {
-            const oldDivScrollHeight = messagesDiv.scrollHeight
-            messageCounter = Math.max(messageCounter - 20, 0)
-            const messagesResponse: Messages = await getResponseMessages(currentChannel)
-            const messages: SingleMessage[] = messagesResponse.messages.reverse()
-            messages.forEach(message =>
-                appendMessageTop(message.userName, message.userPicture, message.time, message.content)
-            )
-            messagesDiv.scrollTop = messagesDiv.scrollHeight - oldDivScrollHeight
-            await sleep(1000)
+            await loadMessagesListener(messagesDiv)
         }
     })
 }
@@ -146,7 +184,7 @@ function showChannelsMessages(responseMessages: Messages): void {
 }
 
 /**
- * Change a channel and show its messages.
+ * Change a channel and show its messages. Activate dynamic loading.
  * @param channel  channel to be switched on.
  */
 function switchChannel(channel: HTMLElement): void {
@@ -157,9 +195,9 @@ function switchChannel(channel: HTMLElement): void {
 
         messageCounter = await getInitialMessageCounter(currentChannel)
 
-        const responseMessages: Messages = await getResponseMessages(currentChannel)
+        const responseMessages = await getResponseMessages(currentChannel)
         showChannelsMessages(responseMessages)
-        loadMoreMessages()
+        loadMessagesAddEventListener()
     })
 }
 
@@ -178,9 +216,9 @@ export function channelSwitcher(): void {
  * @param messageContent  content of the message to be added.
  */
 function addMessageToDB(messageContent: string): void {
-    const xhr: XMLHttpRequest = new XMLHttpRequest()
+    const xhr = new XMLHttpRequest()
     xhr.open('POST', '/add-message')
-    const data: FormData = new FormData()
+    const data = new FormData()
     data.append('messageContent', messageContent)
     data.append('channel', currentChannel)
     xhr.send(data)
@@ -193,7 +231,7 @@ export function sendMessage(): void {
     const sendButton: HTMLButtonElement = document.querySelector('#messages-input-send-button')
     sendButton.addEventListener('click', () => {
         const textArea: HTMLTextAreaElement = document.querySelector('#messages-input-text-area')
-        const messageContent: string = textArea.value
+        const messageContent = textArea.value
         if (messageContent != '') {
             addMessageToDB(messageContent)
             textArea.value = ''

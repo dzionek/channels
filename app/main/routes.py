@@ -89,9 +89,16 @@ def add_message_ajax() -> Tuple[str, int]:
 
 @main.route('/initial-counter', methods=['POST'])
 def get_initial_counter_ajax():
+    """Get the initial counter of the channel given in the form.
+    The initial counter is the id of the last message to be loaded dynamically.
+
+    Returns:
+        The initial counter of the channel.
+
+    """
     channel_name = request.form.get('channelName')
     channel = Channel.query.filter_by(name=channel_name).first()
-    print(len(channel.messages))
+
     return jsonify({
         'counter': len(channel.messages)
     })

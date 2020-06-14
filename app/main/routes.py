@@ -88,7 +88,7 @@ def add_message_ajax() -> Tuple[str, int]:
     return '', 204
 
 @main.route('/initial-counter', methods=['POST'])
-def get_initial_counter_ajax():
+def get_initial_counter_ajax() -> Any:
     """Get the initial counter of the channel given in the form.
     The initial counter is the id of the last message to be loaded dynamically.
 

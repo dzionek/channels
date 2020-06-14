@@ -51,8 +51,7 @@ def get_messages_ajax() -> Any:
 
     """
     channel_name = request.form.get('channelName')
-    # counter = request.form.get('counter')
-    counter = 20
+    counter = request.form.get('counter')
 
     if channel_name is None or counter is None:
         raise ValueError('Channel name and counter must not be None.')
@@ -88,10 +87,11 @@ def add_message_ajax() -> Tuple[str, int]:
 
     return '', 204
 
-@main.route('/get-messages', methods=['POST'])
+@main.route('/initial-counter', methods=['POST'])
 def get_initial_counter_ajax():
     channel_name = request.form.get('channelName')
     channel = Channel.query.filter_by(name=channel_name).first()
+    print(len(channel.messages))
     return jsonify({
         'counter': len(channel.messages)
     })

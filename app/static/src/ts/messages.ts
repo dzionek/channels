@@ -32,7 +32,7 @@ interface Messages {
 function getInitialMessageCounter(channelName: string): Promise<number> {
     return new Promise<number>(resolve => {
         const xhr: XMLHttpRequest = new XMLHttpRequest()
-        xhr.open('POST', '/get-messages')
+        xhr.open('POST', '/initial-counter')
         xhr.responseType = 'json'
         xhr.onload = () => {
             console.log(`Initial counter ${xhr.response.counter}`)
@@ -118,16 +118,17 @@ function appendMessageTop(userName: string, userPicture: string, time: string, c
 }
 
 function loadMoreMessages(): void {
-    const messagesDiv: HTMLDivElement = document.querySelector('messages-list')
+    const messagesDiv: HTMLDivElement = document.querySelector('#messages-list')
     messagesDiv.addEventListener('scroll', async () => {
         if (messagesDiv.scrollTop === 0 && messageCounter != 0) {
-            messagesDiv.scrollTop = 100
-            messageCounter = Math.min(messageCounter - 20, 0)
+            const oldDivScrollHeight = messagesDiv.scrollHeight
+            messageCounter = Math.max(messageCounter - 20, 0)
             const messagesResponse: Messages = await getResponseMessages(currentChannel)
-            const messages: SingleMessage[] = messagesResponse.messages
+            const messages: SingleMessage[] = messagesResponse.messages.reverse()
             messages.forEach(message =>
                 appendMessageTop(message.userName, message.userPicture, message.time, message.content)
             )
+            messagesDiv.scrollTop = messagesDiv.scrollHeight - oldDivScrollHeight
             await sleep(1000)
         }
     })

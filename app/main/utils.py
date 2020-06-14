@@ -88,7 +88,7 @@ def get_messages(channel_name: str, counter: int) -> Any:
     """
     channel = Channel.query.filter_by(name=channel_name).first()
     messages = channel.messages
-
+    print(f'Counter at {counter}')
     messages_response = [
         {
             'userName': User.query.filter_by(id=message.user_id).first().username,
@@ -97,7 +97,7 @@ def get_messages(channel_name: str, counter: int) -> Any:
             'content': message.content,
             'time': pretty_time(message.time)
         }
-        for message in messages[counter:counter + 20]
+        for message in messages[max(counter - 20, 0):counter]
     ]
     return jsonify({'messages': messages_response})
 

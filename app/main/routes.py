@@ -51,13 +51,15 @@ def get_messages_ajax() -> Any:
 
     """
     channel_name = request.form.get('channelName')
+    counter = request.form.get('counter')
 
-    if channel_name is None:
-        raise ValueError('Channel name must not be None.')
+    if channel_name is None or counter is None:
+        raise ValueError('Channel name and counter must not be None.')
     else:
         channel_name = str(channel_name)
+        counter = int(counter)
 
-    return get_messages(channel_name)
+    return get_messages(channel_name, counter)
 
 @main.route('/add-message', methods=['POST'])
 def add_message_ajax() -> Tuple[str, int]:
@@ -84,3 +86,19 @@ def add_message_ajax() -> Tuple[str, int]:
     add_message(message_content, channel)
 
     return '', 204
+
+@main.route('/initial-counter', methods=['POST'])
+def get_initial_counter_ajax():
+    """Get the initial counter of the channel given in the form.
+    The initial counter is the id of the last message to be loaded dynamically.
+
+    Returns:
+        The initial counter of the channel.
+
+    """
+    channel_name = request.form.get('channelName')
+    channel = Channel.query.filter_by(name=channel_name).first()
+
+    return jsonify({
+        'counter': len(channel.messages)
+    })

@@ -225,16 +225,31 @@ function addMessageToDB(messageContent: string): void {
 }
 
 /**
- * Send the message to the {@link currentChannel} after clicking 'send' button on the website.
+ * Send the message to the {@link currentChannel}.
+ * @param textArea  text area where the content of the message is.
  */
-export function sendMessage(): void {
+function sendMessageListener(textArea: HTMLTextAreaElement): void {
+    const messageContent = textArea.value
+    if (messageContent != '') {
+        addMessageToDB(messageContent)
+        textArea.value = ''
+    }
+}
+
+/**
+ * Send the message to the {@link currentChannel} after clicking 'send' button
+ * on the website or pressing "enter".
+ */
+export function sendMessageAddEventListener(): void {
     const sendButton: HTMLButtonElement = document.querySelector('#messages-input-send-button')
-    sendButton.addEventListener('click', () => {
-        const textArea: HTMLTextAreaElement = document.querySelector('#messages-input-text-area')
-        const messageContent = textArea.value
-        if (messageContent != '') {
-            addMessageToDB(messageContent)
-            textArea.value = ''
+    const textArea: HTMLTextAreaElement = document.querySelector('#messages-input-text-area')
+
+    sendButton.addEventListener('click', () => sendMessageListener(textArea))
+
+    textArea.addEventListener('keypress', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault()  // prevent going to a new line
+            sendMessageListener(textArea)
         }
     })
 }

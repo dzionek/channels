@@ -1,5 +1,5 @@
 import {addChannelModal} from './add-channel'
-import {channelSwitcher, sendMessage} from './messages'
+import {channelSwitcher, sendMessageAddEventListener} from './messages'
 import {sockets} from './sockets'
 
 /**
@@ -9,6 +9,6 @@ import {sockets} from './sockets'
 document.addEventListener('DOMContentLoaded', () => {
     addChannelModal()
     channelSwitcher()
-    sendMessage()
+    sendMessageAddEventListener()
     sockets()
 })

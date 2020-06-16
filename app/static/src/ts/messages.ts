@@ -1,4 +1,6 @@
 import {sleep} from './utils'
+import {leaveChannelInput} from './leave-channel'
+
 /**
  * Module responsible for showing messages after clicking on their channel
  * and for sending a message.
@@ -80,8 +82,10 @@ function getResponseMessages(channelName: string): Promise<Messages> {
  * Show input field where users can type their messages.
  */
 function showInputField(): void {
-    const hideSwitchChannel: HTMLDivElement = document.querySelector('#hide-switch-channel')
-    hideSwitchChannel.style.display = 'block'
+    const hideSwitchChannels: NodeListOf<HTMLDivElement> = document.querySelectorAll('.hide-switch-channel')
+    hideSwitchChannels.forEach(hiddenElement => {
+        hiddenElement.style.display = 'block'
+    })
 }
 
 /**
@@ -198,6 +202,7 @@ function switchChannel(channel: HTMLElement): void {
         const responseMessages = await getResponseMessages(currentChannel)
         showChannelsMessages(responseMessages)
         loadMessagesAddEventListener()
+        leaveChannelInput(currentChannel)
     })
 }
 

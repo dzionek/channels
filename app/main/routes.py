@@ -1,13 +1,13 @@
 from typing import Tuple, Any
 
-from flask import request, render_template, jsonify
+from flask import request, render_template, jsonify, flash, redirect, url_for, Markup
 from flask_login import current_user, login_required
 
 from .base import main
 from .utils import add_channel, get_messages, add_message, process_add_channel_form, process_update_channel_form,\
     process_join_channel_form
 
-from app.models import Channel, ChannelAllowList
+from app.models import db, Channel, ChannelAllowList
 
 from app.forms.channel import AddChannelForm, UpdateChannelForm, JoinChannelForm
 
@@ -135,3 +135,23 @@ def get_initial_counter_ajax() -> Any:
     return jsonify({
         'counter': len(channel.messages)
     })
+
+@main.route('/leave-channel', methods=['POST'])
+@login_required
+def leave_channel():
+    channel_name = request.form.get("channel")
+    channel_id = Channel.query.filter_by(name=channel_name).first().id
+
+    leave_msg = f'You have successfully leaved the channel "{channel_name}!"'
+
+    (db.session.query(ChannelAllowList).filter(ChannelAllowList.user_id == current_user.id)
+                                       .filter(ChannelAllowList.channel_id == channel_id)
+                                       .delete())
+
+    if not ChannelAllowList.query.filter_by(channel_id=channel_id).first():
+        db.session.delete(Channel.query.filter_by(id=channel_id).first())
+        leave_msg += '</br>Since you have been the last user, the channel has been deleted.'
+
+    db.session.commit()
+    flash(Markup(leave_msg), 'success')
+    return redirect(url_for('main.setup_app'))

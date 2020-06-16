@@ -25,7 +25,7 @@ class Channel(db.Model):
     name = db.Column(db.String(30), unique=True, nullable=False)
     password = db.Column(db.String(60), unique=True, nullable=False)
 
-    messages = db.relationship('Message', backref='channel', lazy=True)
+    messages = db.relationship('Message', backref='channel', cascade='all,delete-orphan', lazy=True)
     allowed_users = db.relationship('ChannelAllowList', backref='channel', lazy=True)
 
     def __repr__(self) -> str:

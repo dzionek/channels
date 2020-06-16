@@ -55,7 +55,7 @@ class AddChannelForm(ChannelForm):
     confirm_password = PasswordField('Confirm Password', validators=[
         DataRequired(), EqualTo('password', message='Passwords must match')
     ])
-    submit_add = SubmitField('Add a channel')
+    submit_add = SubmitField('Add now!')
 
     def validate_name(self, name: StringField) -> None:
         if self._channel_already_exists(name.data):
@@ -66,7 +66,7 @@ class AddChannelForm(ChannelForm):
 class JoinChannelForm(ChannelForm):
     name = StringField('Name of the new channel', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
-    submit_join = SubmitField('Join the channel')
+    submit_join = SubmitField('Join now!')
 
 class UpdateChannelForm(ChannelForm):
     name = StringField('New name of the channel', validators=[DataRequired()])

@@ -51,14 +51,14 @@
                     </div>
                     <div class="modal-body modal-body-extended">
 
-                        {{ add_channel_form.hidden_tag() }}
+                        {{ add_channel_form.csrf_token }}
                         <fieldset class="form-group">
                             <div class="form-group">
                                 {{ add_channel_form.name.label(class="form-control-label") }}
                                 {% if add_channel_form.name.errors %}
                                     {{ add_channel_form.name(class="form-control form-control-lg is-invalid") }}
                                     <div class="invalid-feedback">
-                                        {% for error in form.name.errors %}
+                                        {% for error in add_channel_form.name.errors %}
                                             <span>{{ error }}</span>
                                         {% endfor %}
                                     </div>
@@ -96,9 +96,9 @@
                     </div>
                     <div class="modal-footer">
                         <div class="form-group" id="button-div">
-                            {{ add_channel_form.submit(class="btn btn-success") }}
+                            {{ add_channel_form.submit_add(class="btn btn-success") }}
                         </div>
-                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="join-channel-close-button">
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="add-channel-close-button">
                             Close
                         </button>
                     </div>
@@ -107,15 +107,7 @@
         </div>
     </div>
 
-    {% if add_channel_form_invalid %}
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                $("#add-channel-modal").modal()
-            })
-        </script>
-    {% endif %}
-
-
+    <!-- Join channel modal -->
     <div class="modal fade" id="join-channel-modal" tabindex="-1" role="dialog" aria-labelledby="joinChannelCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -127,27 +119,39 @@
                         </button>
                     </div>
                     <div class="modal-body modal-body-extended">
-
                             {{ update_channel_form.hidden_tag() }}
                             <fieldset class="form-group">
                                 <div class="form-group">
-                                    {{ update_channel_form.name.label(class="form-control-label") }}
-                                    {% if update_channel_form.name.errors %}
-                                        {{ update_channel_form.name(class="form-control form-control-lg is-invalid") }}
+                                    {{ join_channel_form.name.label(class="form-control-label") }}
+                                    {% if join_channel_form.name.errors %}
+                                        {{ join_channel_form.name(class="form-control form-control-lg is-invalid") }}
                                         <div class="invalid-feedback">
                                             {% for error in form.name.errors %}
                                                 <span>{{ error }}</span>
                                             {% endfor %}
                                         </div>
                                     {% else %}
-                                        {{ update_channel_form.name(class="form-control form-control-lg") }}
+                                        {{ join_channel_form.name(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    {{ join_channel_form.password.label(class="form-control-label") }}
+                                    {% if join_channel_form.password.errors %}
+                                        {{ join_channel_form.password(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in join_channel_form.password.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ join_channel_form.password(class="form-control form-control-lg") }}
                                     {% endif %}
                                 </div>
                             </fieldset>
                     </div>
                     <div class="modal-footer">
                         <div class="form-group" id="button-div">
-                            {{ update_channel_form.submit(class="btn btn-success") }}
+                            {{ join_channel_form.submit_join(class="btn btn-success") }}
                         </div>
                         <button type="button" class="btn btn-danger" data-dismiss="modal" id="join-channel-close-button">
                             Close
@@ -157,5 +161,17 @@
             </div>
         </div>
     </div>
-
+    {% if add_channel_form_invalid %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                $("#add-channel-modal").modal()
+            })
+        </script>
+    {% elif join_channel_form_invalid %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                $("#join-channel-modal").modal()
+            })
+        </script>
+    {% endif %}
 {% endblock %}

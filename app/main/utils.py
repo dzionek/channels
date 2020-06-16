@@ -1,15 +1,15 @@
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional
 from werkzeug.wrappers import Response
 
-from flask import jsonify, url_for, redirect
+from flask import jsonify, url_for, redirect, flash, session
 from flask_login import current_user
 
 from app.models import db, ChannelAllowList, Message, User, Channel
 from app.models.channel_allowlist import UserRole
 
 from app.sockets.sockets import announce_channel, announce_message
-from app.bcrypt.utils import hash_password
+from app.bcrypt.utils import hash_password, check_hashed_password
 
 from app.forms.channel import UpdateChannelForm, AddChannelForm, JoinChannelForm
 """
@@ -95,23 +95,22 @@ def add_message(message_content: str, channel: str) -> None:
     db.session.commit()
     announce_message(username, user_picture, pretty_time(full_time), channel, message_content)
 
-def is_valid_channel(channel: None, form_password: str) -> bool:
-    """Check if the given user exists and then check if the password provided in the login form
-    matches this user's password in the database.
+def is_valid_channel(channel: Optional[Channel], form: AddChannelForm) -> bool:
+    """Check if the given channel exists and then check if the password provided in the "join channel" form
+    matches this channel's password in the database.
 
     Args:
-        channel: None or the user in the database.
-        form_password: The filled login form.
+        channel: None or the channel in the database.
+        form: The filled "join channel" form.
 
     Returns:
-        True if the user is valid, false otherwise.
+        True if the channel is valid, false otherwise.
 
     """
-    # if isinstance(channel, User):
-    #     return check_hashed_password(channel.password, form_password)
-    # else:
-    #     return False
-    pass
+    if isinstance(channel, Channel):
+        return check_hashed_password(channel.password, form.password.data)
+    else:
+        return False
 
 def process_add_channel_form(form: AddChannelForm) -> Response:
     """Get the validated form to add a channel. Hash the given password of the channel.
@@ -135,17 +134,23 @@ def process_add_channel_form(form: AddChannelForm) -> Response:
 
     db.session.commit()
 
+    flash(f'You have successfully added the channel "{form.name.data}!"', 'success')
+
     return redirect(url_for('main.setup_app'))
 
-def process_join_channel(form: JoinChannelForm):
-    # channel = User.query.filter_by(email=form.email.data).first()
-    # if is_valid_user(user, form):
-    #     login_user(user=user, remember=form.remember)
-    #     next_page = request.args.get('next')
-    #     return redirect(next_page) if next_page else redirect(url_for('main.setup_app'))
-    # else:
-    #     flash('Login Unsuccessful. Incorrect email or password', 'danger')
-    pass
+def process_join_channel_form(form: JoinChannelForm) -> str:
+    channel = Channel.query.filter_by(name=form.name.data).first()
+
+    if is_valid_channel(channel, form):
+        db.session.add(ChannelAllowList(
+            channel_id=channel.id, user_id=current_user.id
+        ))
+        db.session.commit()
+        flash(f'You have successfully joined the channel "{channel.name}"!', 'success')
+    else:
+        flash('Joining unsuccessful! Incorrect channel name or password.', 'danger')
+
+    return redirect(url_for('main.setup_app'))
 
 def process_update_channel_form(form: UpdateChannelForm):
     pass

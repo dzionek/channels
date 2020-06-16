@@ -19,14 +19,14 @@ class ChannelAllowList(db.Model):
 
     Fields:
         id (int): Primary key of the allow list.\n
-        user_mode (UserRole enum): Role the user has in the channel.\n
+        user_role (UserRole enum): Role the user has in the channel.\n
         channel_id (foreign key): Id of the channel the user is allowed to see.\n
         user_id (foreign key): Id of the user who can see the channel.
 
     """
     __tablename__ = 'channel_allowlist'
     id = db.Column(db.Integer, primary_key=True)
-    user_mode = db.Column(db.Integer, db.Enum(UserRole), nullable=False, default=UserRole.NORMAL_USER)
+    user_role = db.Column(db.Integer, db.Enum(UserRole), nullable=False, default=UserRole.NORMAL_USER.value)
 
     channel_id = db.Column(db.Integer, db.ForeignKey('channels.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)

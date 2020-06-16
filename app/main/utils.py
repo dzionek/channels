@@ -1,17 +1,17 @@
-from flask import jsonify, url_for
-from flask_login import current_user
 from datetime import datetime
 from typing import Any
+from werkzeug.wrappers import Response
 
-from app.models.base import db
-from app.models.channel import Channel
-from app.models.message import Message
-from app.models.user import User
+from flask import jsonify, url_for, redirect
+from flask_login import current_user
+
+from app.models import db, ChannelAllowList, Message, User, Channel
+from app.models.channel_allowlist import UserRole
 
 from app.sockets.sockets import announce_channel, announce_message
+from app.bcrypt.utils import hash_password
 
-from app.forms.channel import UpdateChannelForm, AddChannelForm
-
+from app.forms.channel import UpdateChannelForm, AddChannelForm, JoinChannelForm
 """
 Utility functions for main routes.
 """
@@ -95,7 +95,56 @@ def add_message(message_content: str, channel: str) -> None:
     db.session.commit()
     announce_message(username, user_picture, pretty_time(full_time), channel, message_content)
 
-def process_add_channel_form(form: AddChannelForm):
+def is_valid_channel(channel: None, form_password: str) -> bool:
+    """Check if the given user exists and then check if the password provided in the login form
+    matches this user's password in the database.
+
+    Args:
+        channel: None or the user in the database.
+        form_password: The filled login form.
+
+    Returns:
+        True if the user is valid, false otherwise.
+
+    """
+    # if isinstance(channel, User):
+    #     return check_hashed_password(channel.password, form_password)
+    # else:
+    #     return False
+    pass
+
+def process_add_channel_form(form: AddChannelForm) -> Response:
+    """Get the validated form to add a channel. Hash the given password of the channel.
+    Set the current user admin role on this channel. Save all of that in the database.
+
+    Args:
+        form: The filled form to add a channel.
+
+    """
+    hashed_password = hash_password(form.password.data)
+
+    db.session.add(Channel(
+        name=form.name.data, password=hashed_password
+    ))
+
+    channel_id = Channel.query.filter_by(password=hashed_password).first().id
+
+    db.session.add(ChannelAllowList(
+        channel_id=channel_id, user_id=current_user.id, user_role=UserRole.ADMIN.value
+    ))
+
+    db.session.commit()
+
+    return redirect(url_for('main.setup_app'))
+
+def process_join_channel(form: JoinChannelForm):
+    # channel = User.query.filter_by(email=form.email.data).first()
+    # if is_valid_user(user, form):
+    #     login_user(user=user, remember=form.remember)
+    #     next_page = request.args.get('next')
+    #     return redirect(next_page) if next_page else redirect(url_for('main.setup_app'))
+    # else:
+    #     flash('Login Unsuccessful. Incorrect email or password', 'danger')
     pass
 
 def process_update_channel_form(form: UpdateChannelForm):

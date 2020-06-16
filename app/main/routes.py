@@ -1,13 +1,12 @@
 from typing import Tuple, Any
 
 from flask import request, render_template, jsonify
-from flask_login import current_user
+from flask_login import current_user, login_required
 
 from .base import main
 from .utils import add_channel, get_messages, add_message, process_add_channel_form, process_update_channel_form
 
-from app.models.channel import Channel
-from app.models.message import Message
+from app.models import Channel, Message, ChannelAllowList
 
 from app.forms.channel import AddChannelForm, UpdateChannelForm
 
@@ -16,6 +15,7 @@ Routes for the main functionality of the app.
 """
 
 @main.route('/app', methods=['GET', 'POST'])
+@login_required
 def setup_app() -> str:
     """Get username, channels and messages from database and render the main app
     template with them.
@@ -24,9 +24,6 @@ def setup_app() -> str:
         Rendered template of the main app.
 
     """
-    channels = Channel.query.all()
-    messages = Message.query.all()
-
     add_channel_form = AddChannelForm()
     update_channel_form = UpdateChannelForm()
 
@@ -44,8 +41,11 @@ def setup_app() -> str:
     elif request.method == 'GET':
         pass
 
+    allowed_channels = ChannelAllowList.query.filter_by(user_id=current_user.id).all()
+    channels = [allowed_channel.channel for allowed_channel in allowed_channels]
+
     return render_template(
-        'app.html', username=current_user, channels=channels, messages=messages,
+        'app.html', username=current_user, channels=channels,
         add_channel_form=add_channel_form, update_channel_form=update_channel_form,
         add_channel_form_invalid=add_channel_form_invalid
     )

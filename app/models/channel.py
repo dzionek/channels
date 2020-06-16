@@ -14,10 +14,10 @@ class Channel(db.Model):
 
     Relationships:
         messages: All messages the channel has.
-            One to many relationship with Message model.\n
+        One to many relationship with Message model.\n
 
         allowed_users: All users who are allowed to see the channel.
-            One to many relationship with ChannelAllowList model.
+        One to many relationship with ChannelAllowList model.
 
     """
     __tablename__ = 'channels'

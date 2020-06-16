@@ -1,4 +1,3 @@
-import re
 from flask import jsonify, url_for
 from flask_login import current_user
 from datetime import datetime
@@ -8,46 +7,14 @@ from app.models.base import db
 from app.models.channel import Channel
 from app.models.message import Message
 from app.models.user import User
-from ..sockets.sockets import announce_channel, announce_message
+
+from app.sockets.sockets import announce_channel, announce_message
+
+from app.forms.channel import UpdateChannelForm, AddChannelForm
 
 """
 Utility functions for main routes.
 """
-
-valid_pattern = re.compile(r'[A-Za-z0-9 \-_]+')
-
-def channel_has_invalid_name(channel_name: str) -> bool:
-    """Check if the channel has invalid name. Its name is invalid if either it is empty,
-    has trailing or leading spaces, or violates the `valid_pattern` regex.
-
-    Args:
-        channel_name: Name of the channel to be checked.
-
-    Returns:
-        True if it has invalid name, False otherwise.
-
-    """
-
-    if not channel_name:
-        return True
-    else:
-        return not(bool(re.fullmatch(valid_pattern, channel_name))) \
-               or channel_name.startswith(' ') \
-               or channel_name.endswith(' ')
-
-
-def channel_already_exists(channel_name: str) -> bool:
-    """Check if the channel already exists in the database.
-
-    Args:
-        channel_name: Name of the channel to be checked.
-
-    Returns:
-        True if it already exists, false otherwise.
-
-    """
-    channel = Channel.query.filter_by(name=channel_name).first()
-    return bool(channel)
 
 def add_channel(channel_name: str) -> None:
     """Add channel to the database and emit it with Socket.IO.
@@ -127,3 +94,9 @@ def add_message(message_content: str, channel: str) -> None:
 
     db.session.commit()
     announce_message(username, user_picture, pretty_time(full_time), channel, message_content)
+
+def process_add_channel_form(form: AddChannelForm):
+    pass
+
+def process_update_channel_form(form: UpdateChannelForm):
+    pass

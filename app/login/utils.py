@@ -2,7 +2,6 @@ from secrets import token_hex
 from os import path, remove
 from PIL import Image
 
-from flask import render_template
 from flask_login import current_user
 
 from typing import Optional, Final
@@ -23,22 +22,6 @@ Utility functions for login routes.
 """
 
 IMAGE_SIDE_SIZE: Final = 125
-
-def set_up_app() -> str:
-    """Get username, channels and messages from database and render the main app
-    template with them.
-
-    Returns:
-        Rendered template of the main app.
-
-    """
-    channels = Channel.query.all()
-    messages = Message.query.all()
-
-    return render_template(
-        'app.html', username=current_user, channels=channels, messages=messages
-    )
-
 
 def add_user(form: RegistrationForm) -> None:
     """Add user (whose data is given in the registration form) to the database.

@@ -8,6 +8,7 @@ from .utils import add_channel, get_messages, add_message, process_add_channel_f
     process_join_channel_form
 
 from app.models import db, Channel, ChannelAllowList
+from app.models.channel_allowlist import UserRole
 
 from app.forms.channel import AddChannelForm, UpdateChannelForm, JoinChannelForm
 
@@ -67,12 +68,14 @@ def setup_app() -> str:
     )
 
 @main.route('/add-channel', methods=['POST'])
+@login_required
 def add_channel_ajax() -> Any:
     """Take POST form with the parameter 'channelName' and add the channel to database."""
     channel_name = request.form.get('channelName')
     add_channel(channel_name)
 
 @main.route('/get-messages', methods=['POST'])
+@login_required
 def get_messages_ajax() -> Any:
     """Take POST form with the parameter 'channelName' and return its messages in JSON format.
 
@@ -95,6 +98,7 @@ def get_messages_ajax() -> Any:
     return get_messages(channel_name, counter)
 
 @main.route('/add-message', methods=['POST'])
+@login_required
 def add_message_ajax() -> Tuple[str, int]:
     """Take POST form with the parameters 'messageContent' and 'channel'. Add the message to the channel
     and save it in the database.
@@ -121,6 +125,7 @@ def add_message_ajax() -> Tuple[str, int]:
     return '', 204
 
 @main.route('/initial-counter', methods=['POST'])
+@login_required
 def get_initial_counter_ajax() -> Any:
     """Get the initial counter of the channel given in the form.
     The initial counter is the id of the last message to be loaded dynamically.
@@ -155,3 +160,43 @@ def leave_channel():
     db.session.commit()
     flash(Markup(leave_msg), 'success')
     return redirect(url_for('main.setup_app'))
+
+def no_channel() -> str:
+    flash("The channel doesn't exist or you don't have necessary permission.", 'danger')
+    return redirect(url_for('main.setup_app'))
+
+@main.route('/is-admin', methods=['POST'])
+def is_admin():
+    channel_name = request.form.get('channelName')
+    if not channel_name:
+        return jsonify({'response': False})
+
+    channel = Channel.query.filter_by(name=channel_name).first()
+
+    if not channel:
+        return jsonify({'response': False})
+
+    allowed_record = (ChannelAllowList.query.filter_by(channel_id=channel.id)
+                                   .filter_by(user_id=current_user.id).first())
+
+    if not allowed_record:
+        return jsonify({'response': False})
+    else:
+        permit = allowed_record.user_role == UserRole.ADMIN.value
+        return jsonify({'response': permit})
+
+@main.route('/channel/<string:channel_name>', methods=['GET'])
+@login_required
+def channel_settings(channel_name: str) -> str:
+    channel = Channel.query.filter_by(name=channel_name).first()
+
+    if not channel:
+        return no_channel()
+
+    channel_permit = (ChannelAllowList.query.filter_by(user_id=current_user.id)
+                                            .filter_by(channel_id=channel.id).first())
+
+    if channel_permit and channel_permit.user_role == UserRole.ADMIN.value:
+        return render_template('settings-channel.html', channel=channel)
+    else:
+        return no_channel()

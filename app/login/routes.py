@@ -75,6 +75,7 @@ def register() -> Union[Response, str]:
         return render_template('register.html', form=form)
 
 @login.route('/log-out')
+@login_required
 def log_out() -> Response:
     """Log out the current user and redirect to the login page.
 
@@ -110,4 +111,4 @@ def settings() -> Union[str, Response]:
         form.username.data = current_user.username
         form.email.data = current_user.email
 
-    return render_template('settings.html', all_messages=all_messages, all_channels=all_channels, form=form)
+    return render_template('settings-user.html', all_messages=all_messages, all_channels=all_channels, form=form)

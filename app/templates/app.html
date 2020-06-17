@@ -6,7 +6,7 @@
         {% for channel in channels %}
             <li class="list-group-item d-flex justify-content-between align-items-center channel" data-channel="{{ channel.name }}">
                 {{ channel.name }}
-                <span class="badge badge-primary badge-pill">100</span>
+{#                <span class="badge badge-primary badge-pill">100</span>#}
             </li>
         {% else %}
             <div class="alert alert-danger" role="alert">
@@ -20,7 +20,10 @@
     <div id="channel-info" class="row">
         <div class="col-lg-3">
             <div class="hide-switch-channel">
-                <button type="button" class="btn btn-danger btn-sm ml-4" data-toggle="modal" data-target="#leave-channel-modal">
+                <button type="button" id="manage-channel-btn" class="btn btn-secondary btn-sm" disabled>
+                    Manage channel
+                </button>
+                <button type="button" class="btn btn-danger btn-sm ml-2" data-toggle="modal" data-target="#leave-channel-modal">
                     Leave channel
                 </button>
             </div>
@@ -38,7 +41,7 @@
                 {% endif %}
             {% endwith %}
         </div>
-        <div id="buttons-div" class="col-lg-3">
+        <div class="col-lg-3">
             <button type="button" id="logout-button" class="btn btn-warning btn-sm"
                     onclick="window.location.href='{{ url_for('login.settings') }}'">
                 Settings
@@ -69,7 +72,7 @@
 
     <!-- Leave channel modal -->
     <div class="modal fade" id="leave-channel-modal" tabindex="-1" role="dialog" aria-labelledby="leaveChannelCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="leaveChannelCenterTitle">Are you sure you want to leave the channel?</h5>

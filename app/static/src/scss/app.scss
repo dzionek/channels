@@ -51,6 +51,9 @@ $ui-height: 10vh;
 
 .hide-switch-channel {
   display: none;
+  #manage-channel-btn {
+    display: none;
+  }
 }
 
 #messages-list {

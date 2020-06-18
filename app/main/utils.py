@@ -1,8 +1,8 @@
 from datetime import datetime
-from typing import Any, Optional
+from typing import Any, Optional, Tuple
 from werkzeug.wrappers import Response
 
-from flask import jsonify, url_for, redirect, flash, session
+from flask import jsonify, url_for, redirect, flash
 from flask_login import current_user
 
 from app.models import db, ChannelAllowList, Message, User, Channel
@@ -154,3 +154,13 @@ def process_join_channel_form(form: JoinChannelForm) -> str:
 
 def process_update_channel_form(form: UpdateChannelForm):
     pass
+
+def get_number_of_channels_users(channel: Channel) -> int:
+    return ChannelAllowList.query.filter_by(channel_id=channel.id).count()
+
+def get_number_of_channels_messages(channel: Channel) -> int:
+    return len(channel.messages)
+
+def get_channels_users(channel: Channel) -> Tuple[User]:
+    channel_allowed_records = ChannelAllowList.query.filter_by(channel_id=channel.id).all()
+    return [User.query.get(record.user_id) for record in channel_allowed_records]

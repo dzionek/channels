@@ -4,10 +4,10 @@ from flask import request, render_template, jsonify, flash, redirect, url_for, M
 from flask_login import current_user, login_required
 
 from .base import main
-from .utils import add_channel, get_messages, add_message, process_add_channel_form, process_update_channel_form,\
-    process_join_channel_form
+from .utils import add_channel, get_messages, add_message, process_add_channel_form, process_update_channel_form, \
+    process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users
 
-from app.models import db, Channel, ChannelAllowList
+from app.models import db, Channel, ChannelAllowList, User
 from app.models.channel_allowlist import UserRole
 
 from app.forms.channel import AddChannelForm, UpdateChannelForm, JoinChannelForm
@@ -165,8 +165,13 @@ def no_channel() -> str:
     flash("The channel doesn't exist or you don't have necessary permission.", 'danger')
     return redirect(url_for('main.setup_app'))
 
+def is_admin(channel: Channel, user: User) -> bool:
+    allowed_record = (ChannelAllowList.query.filter_by(channel_id=channel.id)
+                                            .filter_by(user_id=user.id).first())
+    return allowed_record and allowed_record.user_role == UserRole.ADMIN.value
+
 @main.route('/is-admin', methods=['POST'])
-def is_admin():
+def is_admin_ajax():
     channel_name = request.form.get('channelName')
     if not channel_name:
         return jsonify({'response': False})
@@ -176,14 +181,7 @@ def is_admin():
     if not channel:
         return jsonify({'response': False})
 
-    allowed_record = (ChannelAllowList.query.filter_by(channel_id=channel.id)
-                                   .filter_by(user_id=current_user.id).first())
-
-    if not allowed_record:
-        return jsonify({'response': False})
-    else:
-        permit = allowed_record.user_role == UserRole.ADMIN.value
-        return jsonify({'response': permit})
+    return jsonify({'response': is_admin(channel, current_user)})
 
 @main.route('/channel/<string:channel_name>', methods=['GET'])
 @login_required
@@ -197,6 +195,25 @@ def channel_settings(channel_name: str) -> str:
                                             .filter_by(channel_id=channel.id).first())
 
     if channel_permit and channel_permit.user_role == UserRole.ADMIN.value:
-        return render_template('settings-channel.html', channel=channel)
+
+        num_users = get_number_of_channels_users(channel)
+        num_messages = get_number_of_channels_messages(channel)
+        users = get_channels_users(channel)
+
+        only_admins = all([is_admin(channel, user) for user in users])
+        user_tuples = [(user, is_admin(channel, user)) for user in users]
+
+        return render_template(
+            'settings-channel.html',
+            channel=channel, num_users=num_users, num_messages=num_messages, user_tuples=user_tuples,
+            only_admins=only_admins
+        )
+
     else:
         return no_channel()
+
+@main.route('/make-admin', methods=['POST'])
+@login_required
+def make_admin():
+    user = request.form.get('user')
+    print(f'User {user} is now an admin!')

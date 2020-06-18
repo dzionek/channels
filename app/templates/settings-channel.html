@@ -3,6 +3,17 @@
 {% block settings %}
     <div id="settings-channel">
         <h2 class="border-bottom">Channel "{{ channel.name }}"</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
         Number of users: <span class="ml-2">{{ num_users }}</span><br>
         Number of messages: <span class="ml-2">{{ num_messages }}</span><br><br>
         <h4 class="border-bottom mb-4 mt-2">Users</h4>
@@ -52,6 +63,7 @@
                                 {% endif %}
                             {% endfor %}
                         </select>
+                        <input type="hidden" name="channel_id" value="{{ channel.id }}">
                         <br><br>
                         <button class="btn btn-success btn-sm" type="submit">Make admin</button>
                     </form>
@@ -86,24 +98,22 @@
                     <h5>You can't remove anyone. All users in this channel are admins!</h5>
                 {% else %}
                     <small class="text-muted mb-3">Note that you can't remove any user who is admin.</small>
-                    {% for user, is_admin in user_tuples %}
-                        <form method="post" action="{{ url_for('main.make_admin') }}">
-                            <label for="user">Select a user:</label>
-                            <select name="user" id="user">
-                                {% for user in users %}
-                                    {% if not is_admin %}
-                                        <option value="{{ user.id }}">
-                                            <img src="{{ url_for('static', filename='img/profile_pictures') }}/{{ user.profile_picture }}"
-                                                 class="align-self-start mr-1 border rounded" alt="{{user.username}} profile picture">
-                                            {{ user.username }}
-                                        </option>
-                                    {% endif %}
-                                {% endfor %}
-                            </select>
-                            <br><br>
-                            <button class="btn btn-success btn-sm" type="submit">Make admin</button>
-                        </form>
-                    {% endfor %}
+                    <form method="post" action="{{ url_for('main.make_admin') }}">
+                        <label for="user">Select a user:</label>
+                        <select name="user" id="user">
+                            {% for user, is_admin in user_tuples %}
+                                {% if not is_admin %}
+                                    <option value="{{ user.id }}">
+                                        <img src="{{ url_for('static', filename='img/profile_pictures') }}/{{ user.profile_picture }}"
+                                             class="align-self-start mr-1 border rounded" alt="{{user.username}} profile picture">
+                                        {{ user.username }}
+                                    </option>
+                                {% endif %}
+                            {% endfor %}
+                        </select>
+                        <br><br>
+                        <button class="btn btn-success btn-sm" type="submit">Make admin</button>
+                    </form>
                 {% endif %}
             </div>
         </div>

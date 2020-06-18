@@ -5,7 +5,8 @@ from flask_login import current_user, login_required
 
 from .base import main
 from .utils import add_channel, get_messages, add_message, process_add_channel_form, process_update_channel_form, \
-    process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users
+    process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users, \
+    make_admin_invalid
 
 from app.models import db, Channel, ChannelAllowList, User
 from app.models.channel_allowlist import UserRole
@@ -215,5 +216,33 @@ def channel_settings(channel_name: str) -> str:
 @main.route('/make-admin', methods=['POST'])
 @login_required
 def make_admin():
+    channel_id = request.form.get('channel_id')
     user = request.form.get('user')
-    print(f'User {user} is now an admin!')
+
+    if not channel_id or not user:
+        return make_admin_invalid()
+
+    try:
+        channel_id = int(channel_id)
+        user_id = int(user)
+    except ValueError:
+        return make_admin_invalid()
+
+    channel = Channel.query.get(channel_id)
+
+    if not channel:
+        return make_admin_invalid()
+
+    if not is_admin(channel, current_user):
+        return make_admin_invalid()
+
+    allow_record = (ChannelAllowList.query.filter_by(channel_id=channel_id)
+                                          .filter_by(user_id=user_id).first())
+
+    if not allow_record:
+        return make_admin_invalid()
+    else:
+        allow_record.user_role = UserRole.ADMIN.value
+        db.session.commit()
+        flash(f'The user {User.query.get(user_id).username} is now an admin of this channel.', 'success')
+        return redirect(f'channel/{Channel.query.get(channel_id).name}')

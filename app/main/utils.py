@@ -164,3 +164,6 @@ def get_number_of_channels_messages(channel: Channel) -> int:
 def get_channels_users(channel: Channel) -> Tuple[User]:
     channel_allowed_records = ChannelAllowList.query.filter_by(channel_id=channel.id).all()
     return [User.query.get(record.user_id) for record in channel_allowed_records]
+
+def make_admin_invalid() -> str:
+    flash("It wasn't possible to make the given user admin.", 'danger')

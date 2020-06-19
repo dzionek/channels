@@ -2,7 +2,6 @@ from secrets import token_hex
 from os import path, remove
 from PIL import Image
 
-from flask import render_template
 from flask_login import current_user
 
 from typing import Optional, Final
@@ -13,9 +12,8 @@ from app.bcrypt.utils import hash_password, check_hashed_password
 from app.forms.registration import RegistrationForm
 from app.forms.login import LoginForm
 
-from app.models import db
-from app.models.channel import Channel
-from app.models.message import Message
+from app.models import db, ChannelAllowList, Message
+
 from app.models.user import User, DEFAULT_PROFILE_PICTURE
 
 """
@@ -23,22 +21,6 @@ Utility functions for login routes.
 """
 
 IMAGE_SIDE_SIZE: Final = 125
-
-def set_up_app() -> str:
-    """Get username, channels and messages from database and render the main app
-    template with them.
-
-    Returns:
-        Rendered template of the main app.
-
-    """
-    channels = Channel.query.all()
-    messages = Message.query.all()
-
-    return render_template(
-        'app.html', username=current_user, channels=channels, messages=messages
-    )
-
 
 def add_user(form: RegistrationForm) -> None:
     """Add user (whose data is given in the registration form) to the database.
@@ -72,7 +54,7 @@ def is_valid_user(user: Optional[User], form: LoginForm) -> bool:
         return False
 
 def get_number_of_all_messages() -> int:
-    """Get the number of all channels that the given user has sent.
+    """Get the number of all channels that the current user has sent.
 
     Returns:
         The number of all messages of the user.
@@ -82,13 +64,13 @@ def get_number_of_all_messages() -> int:
     return number_of_all_messages
 
 def get_number_of_all_channels() -> int:
-    """Get the number of all channels.
+    """Get the number of all channels of the current user.
 
     Returns:
         The number of all channels.
 
     """
-    number_of_all_channels: int = Channel.query.count()
+    number_of_all_channels: int = ChannelAllowList.query.filter_by(user_id=current_user.id).count()
     return number_of_all_channels
 
 def update_user(username: str, email: str) -> None:

@@ -1,53 +1,20 @@
-import re
-from flask import jsonify, url_for
-from flask_login import current_user
 from datetime import datetime
-from typing import Any
+from typing import Any, Optional, Tuple
+from werkzeug.wrappers import Response
 
-from app.models.base import db
-from app.models.channel import Channel
-from app.models.message import Message
-from app.models.user import User
-from ..sockets.sockets import announce_channel, announce_message
+from flask import jsonify, url_for, redirect, flash, request
+from flask_login import current_user
 
+from app.models import db, ChannelAllowList, Message, User, Channel
+from app.models.channel_allowlist import UserRole
+
+from app.sockets.sockets import announce_channel, announce_message
+from app.bcrypt.utils import hash_password, check_hashed_password
+
+from app.forms.channel import UpdateChannelForm, AddChannelForm, JoinChannelForm
 """
 Utility functions for main routes.
 """
-
-valid_pattern = re.compile(r'[A-Za-z0-9 \-_]+')
-
-def channel_has_invalid_name(channel_name: str) -> bool:
-    """Check if the channel has invalid name. Its name is invalid if either it is empty,
-    has trailing or leading spaces, or violates the `valid_pattern` regex.
-
-    Args:
-        channel_name: Name of the channel to be checked.
-
-    Returns:
-        True if it has invalid name, False otherwise.
-
-    """
-
-    if not channel_name:
-        return True
-    else:
-        return not(bool(re.fullmatch(valid_pattern, channel_name))) \
-               or channel_name.startswith(' ') \
-               or channel_name.endswith(' ')
-
-
-def channel_already_exists(channel_name: str) -> bool:
-    """Check if the channel already exists in the database.
-
-    Args:
-        channel_name: Name of the channel to be checked.
-
-    Returns:
-        True if it already exists, false otherwise.
-
-    """
-    channel = Channel.query.filter_by(name=channel_name).first()
-    return bool(channel)
 
 def add_channel(channel_name: str) -> None:
     """Add channel to the database and emit it with Socket.IO.
@@ -127,3 +94,142 @@ def add_message(message_content: str, channel: str) -> None:
 
     db.session.commit()
     announce_message(username, user_picture, pretty_time(full_time), channel, message_content)
+
+def is_valid_channel(channel: Optional[Channel], form: AddChannelForm) -> bool:
+    """Check if the given channel exists and then check if the password provided in the "join channel" form
+    matches this channel's password in the database.
+
+    Args:
+        channel: None or the channel in the database.
+        form: The filled "join channel" form.
+
+    Returns:
+        True if the channel is valid, false otherwise.
+
+    """
+    if isinstance(channel, Channel):
+        return check_hashed_password(channel.password, form.password.data)
+    else:
+        return False
+
+def process_add_channel_form(form: AddChannelForm) -> Response:
+    """Get the validated form to add a channel. Hash the given password of the channel.
+    Set the current user admin role on this channel. Save all of that in the database.
+
+    Args:
+        form: The filled form to add a channel.
+
+    """
+    hashed_password = hash_password(form.password.data)
+
+    db.session.add(Channel(
+        name=form.name.data, password=hashed_password
+    ))
+
+    channel_id = Channel.query.filter_by(password=hashed_password).first().id
+
+    db.session.add(ChannelAllowList(
+        channel_id=channel_id, user_id=current_user.id, user_role=UserRole.ADMIN.value
+    ))
+
+    db.session.commit()
+
+    flash(f'You have successfully added the channel "{form.name.data}!"', 'success')
+
+    return redirect(url_for('main.setup_app'))
+
+def process_join_channel_form(form: JoinChannelForm) -> str:
+    channel = Channel.query.filter_by(name=form.name.data).first()
+
+    if is_valid_channel(channel, form):
+        db.session.add(ChannelAllowList(
+            channel_id=channel.id, user_id=current_user.id
+        ))
+        db.session.commit()
+        flash(f'You have successfully joined the channel "{channel.name}"!', 'success')
+    else:
+        flash('Joining unsuccessful! Incorrect channel name or password.', 'danger')
+
+    return redirect(url_for('main.setup_app'))
+
+def process_update_channel_form(form: UpdateChannelForm):
+    pass
+
+def get_number_of_channels_users(channel: Channel) -> int:
+    return ChannelAllowList.query.filter_by(channel_id=channel.id).count()
+
+def get_number_of_channels_messages(channel: Channel) -> int:
+    return len(channel.messages)
+
+def get_channels_users(channel: Channel) -> Tuple[User]:
+    channel_allowed_records = ChannelAllowList.query.filter_by(channel_id=channel.id).all()
+    return [User.query.get(record.user_id) for record in channel_allowed_records]
+
+def is_admin(channel: Channel, user: User) -> bool:
+    allowed_record = (ChannelAllowList.query.filter_by(channel_id=channel.id)
+                      .filter_by(user_id=user.id).first())
+    return allowed_record and allowed_record.user_role == UserRole.ADMIN.value
+
+def check_channel_settings_form(channel_id: str, user: str) -> Optional[Tuple[Channel, User]]:
+    if not channel_id or not user:
+        print(f"invalid function's params: channel_id={channel_id}, user={user}")
+        return None
+
+    try:
+        channel_id = int(channel_id)
+        user_id = int(user)
+    except ValueError:
+        print(f"This values are not integers: channel_id={channel_id}, user={user}")
+        return None
+
+    channel = Channel.query.get(channel_id)
+
+    if not channel:
+        print(f"No channel: {channel}")
+        return None
+
+    user = User.query.get(user_id)
+
+    if not user:
+        print(f"No user: {user}")
+        return None
+
+    if not is_admin(channel, current_user):
+        print(f"Current user is not admin: {current_user} on {channel}")
+        return None
+    else:
+        return channel, user
+
+def admin_manager(command: str, channel_id: str, user_id: str):
+    checked_value = check_channel_settings_form(channel_id, user_id)
+
+    if not checked_value:
+        return admin_invalid()
+    else:
+        channel, user = checked_value
+
+    allow_record = (ChannelAllowList.query.filter_by(channel_id=channel_id)
+                    .filter_by(user_id=user_id).first())
+
+    if not allow_record:
+        print(f"There is no allow_record: {allow_record}")
+        return admin_invalid()
+
+    print(f"The command is {command}")
+    if command == 'make':
+        allow_record.user_role = UserRole.ADMIN.value
+        db.session.commit()
+        message = 'has just become'
+    elif command == 'revoke':
+        allow_record.user_role = UserRole.NORMAL_USER.value
+        db.session.commit()
+        message = 'no longer'
+    else:
+        return admin_invalid()
+
+    flash(f'The user {User.query.get(user_id).username} {message} admin of this channel.', 'success')
+    return redirect(f'channel/{Channel.query.get(channel_id).name}')
+
+def admin_invalid() -> str:
+    flash("It wasn't possible to modify the role of the given user.", 'danger')
+    return redirect(url_for('main.setup_app'))

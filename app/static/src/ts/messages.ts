@@ -1,4 +1,6 @@
 import {sleep} from './utils'
+import {addChannelName} from './manage-channel'
+
 /**
  * Module responsible for showing messages after clicking on their channel
  * and for sending a message.
@@ -31,6 +33,10 @@ interface SingleMessage {
  */
 interface Messages {
     readonly messages: SingleMessage[]
+}
+
+interface IsAdminResponse {
+    readonly response: boolean
 }
 
 /**
@@ -80,8 +86,10 @@ function getResponseMessages(channelName: string): Promise<Messages> {
  * Show input field where users can type their messages.
  */
 function showInputField(): void {
-    const hideSwitchChannel: HTMLDivElement = document.querySelector('#hide-switch-channel')
-    hideSwitchChannel.style.display = 'block'
+    const hideSwitchChannels: NodeListOf<HTMLDivElement> = document.querySelectorAll('.hide-switch-channel')
+    hideSwitchChannels.forEach(hiddenElement => {
+        hiddenElement.style.display = 'block'
+    })
 }
 
 /**
@@ -183,6 +191,39 @@ function showChannelsMessages(responseMessages: Messages): void {
     messages.forEach(message => appendMessageBottom(message.userName, message.userPicture, message.time, message.content))
 }
 
+function isAdmin(currentChannel: string): Promise<IsAdminResponse> {
+    return new Promise<IsAdminResponse>(resolve => {
+        const xhr = new XMLHttpRequest()
+        xhr.open('POST', `/is-admin`)
+        xhr.responseType = 'json'
+        xhr.onload = () => {
+            resolve(xhr.response)
+        }
+        const data: FormData = new FormData()
+        data.append('channelName', currentChannel)
+        xhr.send(data)
+    })
+}
+
+function redirectManageButton(): void {
+    window.location.href =
+        location.protocol + '//' + document.domain + ':' + location.port + `/channel/${currentChannel}`
+}
+
+async function activateManageButton(currentChannel: string): Promise<void> {
+    const admin = await isAdmin(currentChannel)
+    const manageButton: HTMLButtonElement = document.querySelector('#manage-channel-btn')
+    if (admin.response) {
+        manageButton.style.display = 'inline'
+        manageButton.disabled = false
+        manageButton.addEventListener('click', redirectManageButton)
+    } else {
+        manageButton.style.display = 'none'
+        manageButton.disabled = true
+        manageButton.removeEventListener('click', redirectManageButton)
+    }
+}
+
 /**
  * Change a channel and show its messages. Activate dynamic loading.
  * @param channel  channel to be switched on.
@@ -198,6 +239,8 @@ function switchChannel(channel: HTMLElement): void {
         const responseMessages = await getResponseMessages(currentChannel)
         showChannelsMessages(responseMessages)
         loadMessagesAddEventListener()
+        addChannelName(currentChannel)
+        await activateManageButton(currentChannel)
     })
 }
 

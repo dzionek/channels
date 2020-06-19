@@ -5,7 +5,7 @@ from typing import Union
 from werkzeug.wrappers import Response
 
 from .base import login
-from .utils import set_up_app, add_user, is_valid_user, get_number_of_all_messages, get_number_of_all_channels,\
+from .utils import add_user, is_valid_user, get_number_of_all_messages, get_number_of_all_channels,\
     update_user, save_profile_picture, remove_old_profile_picture
 
 from app.forms.registration import RegistrationForm
@@ -37,7 +37,7 @@ def index() -> Union[Response, str]:
 
     """
     if current_user.is_authenticated:
-        return set_up_app()
+        return redirect(url_for('main.setup_app'))
 
     form = LoginForm()
     if form.validate_on_submit():
@@ -45,7 +45,7 @@ def index() -> Union[Response, str]:
         if is_valid_user(user, form):
             login_user(user=user, remember=form.remember)
             next_page = request.args.get('next')
-            return redirect(next_page) if next_page else set_up_app()
+            return redirect(next_page) if next_page else redirect(url_for('main.setup_app'))
         else:
             flash('Login Unsuccessful. Incorrect email or password', 'danger')
 
@@ -75,6 +75,7 @@ def register() -> Union[Response, str]:
         return render_template('register.html', form=form)
 
 @login.route('/log-out')
+@login_required
 def log_out() -> Response:
     """Log out the current user and redirect to the login page.
 
@@ -110,4 +111,4 @@ def settings() -> Union[str, Response]:
         form.username.data = current_user.username
         form.email.data = current_user.email
 
-    return render_template('settings.html', all_messages=all_messages, all_channels=all_channels, form=form)
+    return render_template('settings-user.html', all_messages=all_messages, all_channels=all_channels, form=form)

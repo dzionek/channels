@@ -12,11 +12,15 @@
 
             <div class="col-md-3 border-right" id="channels">
 
-                <div id="channels-ui">
-
-                    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#add-channel-modal">
-                        Add a channel
-                    </button>
+                <div id="channels-ui-parent">
+                    <div id="channels-ui-child">
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add-channel-modal">
+                            Add channel
+                        </button>
+                        <button type="button" class="btn btn-success btn-sm ml-4" data-toggle="modal" data-target="#join-channel-modal">
+                            Join channel
+                        </button>
+                    </div>
                 </div>
 
                 <div id="channels-list">
@@ -32,30 +36,140 @@
         </div>
     </div>
 
-    <!-- Modals -->
-    <div class="modal fade" id="add-channel-modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <!-- Add channel modal -->
+    <div class="modal fade" id="add-channel-modal" tabindex="-1" role="dialog" aria-labelledby="addChannelCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalCenterTitle">Add a new channel!</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body modal-body-extended">
-                    <b>Name of a new channel:</b>
-                    <label>
-                        <input type="text" id="add-channel-input">
-                    </label>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-success" id="add-channel-add-button">Add</button>
-                    <button type="button" class="btn btn-danger" data-dismiss="modal" id="add-channel-close-button">
-                        Close
-                    </button>
-                </div>
+                <form method="post" action="">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="joinChannelCenterTitle">Add a new channel!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body modal-body-extended">
+
+                        {{ add_channel_form.csrf_token }}
+                        <fieldset class="form-group">
+                            <div class="form-group">
+                                {{ add_channel_form.name.label(class="form-control-label") }}
+                                {% if add_channel_form.name.errors %}
+                                    {{ add_channel_form.name(class="form-control form-control-lg is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in add_channel_form.name.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ add_channel_form.name(class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                {{ add_channel_form.password.label(class="form-control-label") }}
+                                {% if add_channel_form.password.errors %}
+                                    {{ add_channel_form.password(class="form-control form-control-lg is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in form.password.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ add_channel_form.password(class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                            <div class="form-group">
+                                {{ add_channel_form.confirm_password.label(class="form-control-label") }}
+                                {% if add_channel_form.confirm_password.errors %}
+                                    {{ add_channel_form.confirm_password(class="form-control form-control-lg is-invalid") }}
+                                    <div class="invalid-feedback">
+                                        {% for error in add_channel_form.confirm_password.errors %}
+                                            <span>{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    {{ add_channel_form.confirm_password(class="form-control form-control-lg") }}
+                                {% endif %}
+                            </div>
+                        </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="form-group" id="button-div">
+                            {{ add_channel_form.submit_add(class="btn btn-success") }}
+                        </div>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="add-channel-close-button">
+                            Close
+                        </button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
 
+    <!-- Join channel modal -->
+    <div class="modal fade" id="join-channel-modal" tabindex="-1" role="dialog" aria-labelledby="joinChannelCenterTitle" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <form method="post" action="">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="joinChannelCenterTitle">Join a channel!</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body modal-body-extended">
+                            {{ update_channel_form.hidden_tag() }}
+                            <fieldset class="form-group">
+                                <div class="form-group">
+                                    {{ join_channel_form.name.label(class="form-control-label") }}
+                                    {% if join_channel_form.name.errors %}
+                                        {{ join_channel_form.name(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in form.name.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ join_channel_form.name(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                                <div class="form-group">
+                                    {{ join_channel_form.password.label(class="form-control-label") }}
+                                    {% if join_channel_form.password.errors %}
+                                        {{ join_channel_form.password(class="form-control form-control-lg is-invalid") }}
+                                        <div class="invalid-feedback">
+                                            {% for error in join_channel_form.password.errors %}
+                                                <span>{{ error }}</span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        {{ join_channel_form.password(class="form-control form-control-lg") }}
+                                    {% endif %}
+                                </div>
+                            </fieldset>
+                    </div>
+                    <div class="modal-footer">
+                        <div class="form-group" id="button-div">
+                            {{ join_channel_form.submit_join(class="btn btn-success") }}
+                        </div>
+                        <button type="button" class="btn btn-danger" data-dismiss="modal" id="join-channel-close-button">
+                            Close
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% if add_channel_form_invalid %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                $("#add-channel-modal").modal()
+            })
+        </script>
+    {% elif join_channel_form_invalid %}
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                $("#join-channel-modal").modal()
+            })
+        </script>
+    {% endif %}
 {% endblock %}

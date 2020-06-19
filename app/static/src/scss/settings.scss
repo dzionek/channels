@@ -9,3 +9,32 @@
     text-align: center;
   }
 }
+
+#settings-channel {
+  h2 {
+    text-align: center;
+    padding-bottom: 3vh;
+  }
+  img {
+    height: 30px;
+    width: auto;
+  }
+  .img-div {
+    display: inline;
+  }
+
+  #collapse-btn-group {
+    text-align: center;
+  }
+
+  #display-users {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 2%;
+    padding: 2%;
+  }
+}
+
+.not-flex {
+  display: block !important;
+}

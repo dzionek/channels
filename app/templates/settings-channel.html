@@ -34,12 +34,15 @@
         </div>
 
         <div class="collapse" id="collapse-all-users">
-            <div class="card card-body not-flex">
+            <div id="display-users" class="border">
                 {% for user, is_admin in user_tuples %}
-                    <div class="img-div mr-3">
+                    <div class="img-div mr-5 mb-3">
                         <img src="{{ url_for('static', filename='img/profile_pictures') }}/{{ user.profile_picture }}"
                              class="align-self-start mr-1 border rounded" alt="{{user.username}} profile picture">
                         {{ user.username }}
+                        {% if is_admin %}
+                            <span class="badge badge-pill badge-success ml-1">admin</span>
+                        {% endif %}
                     </div>
                 {% endfor %}
             </div>
@@ -73,7 +76,7 @@
 
         <div class="collapse" id="collapse-revoke-admin">
             <div class="card card-body">
-                <form method="post" action="{{ url_for('main.make_admin') }}">
+                <form method="post" action="{{ url_for('main.revoke_admin') }}">
                     <label for="user">Select a user:</label>
                     <select name="user" id="user">
                         {% for user, is_admin in user_tuples %}
@@ -86,6 +89,7 @@
                             {% endif %}
                         {% endfor %}
                     </select>
+                    <input type="hidden" name="channel_id" value="{{ channel.id }}">
                     <br><br>
                     <button class="btn btn-success btn-sm" type="submit">Revoke admin</button>
                 </form>
@@ -98,7 +102,7 @@
                     <h5>You can't remove anyone. All users in this channel are admins!</h5>
                 {% else %}
                     <small class="text-muted mb-3">Note that you can't remove any user who is admin.</small>
-                    <form method="post" action="{{ url_for('main.make_admin') }}">
+                    <form method="post" action="{{ url_for('main.remove_user') }}">
                         <label for="user">Select a user:</label>
                         <select name="user" id="user">
                             {% for user, is_admin in user_tuples %}
@@ -111,8 +115,9 @@
                                 {% endif %}
                             {% endfor %}
                         </select>
+                        <input type="hidden" name="channel_id" value="{{ channel.id }}">
                         <br><br>
-                        <button class="btn btn-success btn-sm" type="submit">Make admin</button>
+                        <button class="btn btn-success btn-sm" type="submit">Remove user</button>
                     </form>
                 {% endif %}
             </div>

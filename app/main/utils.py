@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Any, Optional, Tuple
 from werkzeug.wrappers import Response
 
-from flask import jsonify, url_for, redirect, flash
+from flask import jsonify, url_for, redirect, flash, request
 from flask_login import current_user
 
 from app.models import db, ChannelAllowList, Message, User, Channel
@@ -165,5 +165,71 @@ def get_channels_users(channel: Channel) -> Tuple[User]:
     channel_allowed_records = ChannelAllowList.query.filter_by(channel_id=channel.id).all()
     return [User.query.get(record.user_id) for record in channel_allowed_records]
 
-def make_admin_invalid() -> str:
-    flash("It wasn't possible to make the given user admin.", 'danger')
+def is_admin(channel: Channel, user: User) -> bool:
+    allowed_record = (ChannelAllowList.query.filter_by(channel_id=channel.id)
+                      .filter_by(user_id=user.id).first())
+    return allowed_record and allowed_record.user_role == UserRole.ADMIN.value
+
+def check_channel_settings_form(channel_id: str, user: str) -> Optional[Tuple[Channel, User]]:
+    if not channel_id or not user:
+        print(f"invalid function's params: channel_id={channel_id}, user={user}")
+        return None
+
+    try:
+        channel_id = int(channel_id)
+        user_id = int(user)
+    except ValueError:
+        print(f"This values are not integers: channel_id={channel_id}, user={user}")
+        return None
+
+    channel = Channel.query.get(channel_id)
+
+    if not channel:
+        print(f"No channel: {channel}")
+        return None
+
+    user = User.query.get(user_id)
+
+    if not user:
+        print(f"No user: {user}")
+        return None
+
+    if not is_admin(channel, current_user):
+        print(f"Current user is not admin: {current_user} on {channel}")
+        return None
+    else:
+        return channel, user
+
+def admin_manager(command: str, channel_id: str, user_id: str):
+    checked_value = check_channel_settings_form(channel_id, user_id)
+
+    if not checked_value:
+        return admin_invalid()
+    else:
+        channel, user = checked_value
+
+    allow_record = (ChannelAllowList.query.filter_by(channel_id=channel_id)
+                    .filter_by(user_id=user_id).first())
+
+    if not allow_record:
+        print(f"There is no allow_record: {allow_record}")
+        return admin_invalid()
+
+    print(f"The command is {command}")
+    if command == 'make':
+        allow_record.user_role = UserRole.ADMIN.value
+        db.session.commit()
+        message = 'has just become'
+    elif command == 'revoke':
+        allow_record.user_role = UserRole.NORMAL_USER.value
+        db.session.commit()
+        message = 'no longer'
+    else:
+        return admin_invalid()
+
+    flash(f'The user {User.query.get(user_id).username} {message} admin of this channel.', 'success')
+    return redirect(f'channel/{Channel.query.get(channel_id).name}')
+
+def admin_invalid() -> str:
+    flash("It wasn't possible to modify the role of the given user.", 'danger')
+    return redirect(url_for('main.setup_app'))

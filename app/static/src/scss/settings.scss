@@ -26,6 +26,13 @@
   #collapse-btn-group {
     text-align: center;
   }
+
+  #display-users {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 2%;
+    padding: 2%;
+  }
 }
 
 .not-flex {

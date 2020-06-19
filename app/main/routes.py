@@ -1,4 +1,4 @@
-from typing import Tuple, Any
+from typing import Tuple, Any, Optional
 
 from flask import request, render_template, jsonify, flash, redirect, url_for, Markup
 from flask_login import current_user, login_required
@@ -6,7 +6,7 @@ from flask_login import current_user, login_required
 from .base import main
 from .utils import add_channel, get_messages, add_message, process_add_channel_form, process_update_channel_form, \
     process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users, \
-    make_admin_invalid
+    admin_invalid, is_admin, admin_manager, check_channel_settings_form
 
 from app.models import db, Channel, ChannelAllowList, User
 from app.models.channel_allowlist import UserRole
@@ -166,11 +166,6 @@ def no_channel() -> str:
     flash("The channel doesn't exist or you don't have necessary permission.", 'danger')
     return redirect(url_for('main.setup_app'))
 
-def is_admin(channel: Channel, user: User) -> bool:
-    allowed_record = (ChannelAllowList.query.filter_by(channel_id=channel.id)
-                                            .filter_by(user_id=user.id).first())
-    return allowed_record and allowed_record.user_role == UserRole.ADMIN.value
-
 @main.route('/is-admin', methods=['POST'])
 def is_admin_ajax():
     channel_name = request.form.get('channelName')
@@ -217,32 +212,35 @@ def channel_settings(channel_name: str) -> str:
 @login_required
 def make_admin():
     channel_id = request.form.get('channel_id')
-    user = request.form.get('user')
+    user_id = request.form.get('user')
+    return admin_manager(command='make', channel_id=channel_id, user_id=user_id)
 
-    if not channel_id or not user:
-        return make_admin_invalid()
+@main.route('/revoke-admin', methods=['POST'])
+@login_required
+def revoke_admin():
+    channel_id = request.form.get('channel_id')
+    user_id = request.form.get('user')
+    return admin_manager(command='revoke', channel_id=channel_id, user_id=user_id)
 
-    try:
-        channel_id = int(channel_id)
-        user_id = int(user)
-    except ValueError:
-        return make_admin_invalid()
+@main.route('/remove-user', methods=['POST'])
+@login_required
+def remove_user() -> str:
+    channel_id = request.form.get('channel_id')
+    user_id = request.form.get('user')
 
-    channel = Channel.query.get(channel_id)
+    checked_value = check_channel_settings_form(channel_id, user_id)
 
-    if not channel:
-        return make_admin_invalid()
-
-    if not is_admin(channel, current_user):
-        return make_admin_invalid()
-
-    allow_record = (ChannelAllowList.query.filter_by(channel_id=channel_id)
-                                          .filter_by(user_id=user_id).first())
-
-    if not allow_record:
-        return make_admin_invalid()
+    if not checked_value:
+        flash("The user can't be removed.", 'danger')
+        return redirect(url_for('main.setup_app'))
     else:
-        allow_record.user_role = UserRole.ADMIN.value
-        db.session.commit()
-        flash(f'The user {User.query.get(user_id).username} is now an admin of this channel.', 'success')
-        return redirect(f'channel/{Channel.query.get(channel_id).name}')
+        channel, user = checked_value
+
+    allow_record = (ChannelAllowList.query.filter_by(channel_id=channel.id)
+                                          .filter_by(user_id=user.id).first())
+
+    db.session.delete(allow_record)
+
+    db.session.commit()
+    flash(f"The user {user.username} has been removed from channel {channel.name}.", 'success')
+    return redirect(f"channel/{channel.name}")

@@ -44,17 +44,15 @@ python setup.py
 - [ ] Forget password
 
 **Functionality**
-- [ ] Channels should have passwords
-  - [ ] Join a channel modal
-  - [ ] Add password to channel model
-  - [ ] Leave a channel
+- [x] Channels should have passwords
+  - [x] Join a channel modal
+  - [x] Add password to channel model
+  - [x] Leave a channel
 - [ ] REST API
-  - [ ] Refactor and use more OOP
+- [ ] Refactor and use more OOP
 
 **Design**
-- [ ] Message should have own colorful interactive div that changes on hover
 - [ ] Black mode
-- [ ] More informative top bar
 
 **Learn and Use**
 - [ ] Docker container

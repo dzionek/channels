@@ -30,10 +30,15 @@ echo 'DATABASE_URI = "postgres://{USER}:{PASSWORD}@{HOSTNAME}:{PORT}/{DB NAME}"'
 echo 'SECRET_KEY = "{YOUR SECRET KEY}"' >> secret_config.py
 ```
 
-## Run
-Run the setup file in the main directory
+## Usage
+Create the necessary databases.
 ```bash
-python setup.py
+flask create-db
+```
+
+Run the *run.py* file in the main directory.
+```bash
+python run.py
 ```
 
 ## TODO:

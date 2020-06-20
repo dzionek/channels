@@ -7,3 +7,6 @@ flask_session
 app/static/dist
 execute.sql
 Channels notebook.ipynb
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/

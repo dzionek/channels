@@ -1,7 +1,8 @@
 from flask import Flask
 
 from .config import configure_app
-from . import models, main, login, sockets, bcrypt, login_manager
+from . import models, main, login, sockets, bcrypt, login_manager, cli
+import app.cli.commands
 
 """
 Module containing the app factory.
@@ -23,5 +24,6 @@ def create_app() -> Flask:
     sockets.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
+    cli.init_app(app)
 
     return app

@@ -1,12 +1,10 @@
 .gitignore
 .idea/
-venv/
-node_modules
-secret_config.py
-flask_session
-app/static/dist
-execute.sql
-Channels notebook.ipynb
-.pytest_cache/
-.mypy_cache/
-.ipynb_checkpoints/
+web/venv/
+web/node_modules
+web/flask_session
+web/app/static/dist
+web/Channels notebook.ipynb
+web/.pytest_cache/
+web/.mypy_cache/
+web/.ipynb_checkpoints/

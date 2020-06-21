@@ -1,45 +1,77 @@
 # Channels
 
-Flask web-application where you can create own channels and chat with your friends/colleagues. Created with Python, TypeScript, SCSS, Bootstrap, Socket.io, Handlebars templates, and love. Bundled with Webpack.
+Flask web-application where you can create own channels, manage them, and chat with your friends/colleagues.
+Created with Python, TypeScript, SCSS, Bootstrap, Socket.io, Handlebars templates, and love. Bundled with Webpack.
+Containerized with Docker.
 
 Inspired by the Project 2 of Harvard's [CS50’s Web Programming with Python and JavaScript](https://cs50.harvard.edu/web/2018/).
 
-## Installation
-
-**Optional:** If you wish to separate this python packages from your global ones, create a virtual environment and then follow the instruction below.
-```bash
-python -m pip install --upgrade pip
-pip install virutalenv
-virtualenv venv
-source venv/bin/activate
-```
-
-Use the Python's package manager [pip](https://pip.pypa.io/en/stable/) and Node.JS package manager [npm](https://nodejs.org) to install the requirements.
-
-```bash
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-npm install --save
-npm run build
-```
-
-Create [PostgreSQL](https://www.postgresql.org) database and save your DATABASE_URI in *secret_config.py* along with your SECRET_KEY for administering the app.
-
-```bash
-echo 'DATABASE_URI = "postgres://{USER}:{PASSWORD}@{HOSTNAME}:{PORT}/{DB NAME}"' >> secret_config.py
-echo 'SECRET_KEY = "{YOUR SECRET KEY}"' >> secret_config.py
-```
-
 ## Usage
-Create the necessary databases.
+
+### 1) Preferable way – with Docker
+
+Install [Docker](https://www.docker.com/get-started), build the container, and run it.
+
 ```bash
-flask create-db
+docker-compose up -d --build
 ```
 
-Run the *run.py* file in the main directory.
-```bash
-python run.py
-```
+Your website should be available at [localhost:5000](localhost:5000).
+
+### 2) Without Docker
+* If you don't want to use Docker, change the directory to *web*.
+
+    ```bash
+    cd web
+    ```
+
+* **Optional:** If you wish to separate these python packages from your global ones,
+create a virtual environment with [pip](https://pip.pypa.io/en/stable/).
+
+    ```bash
+    python -m pip install --upgrade pip
+    pip install virutalenv
+    virtualenv venv
+    source venv/bin/activate  # for Linux/MacOS, on Windows do instead: venv\Scripts\activate
+    ```
+
+* Use Python package manager [pip](https://pip.pypa.io/en/stable/) and Node.JS package manager [npm](https://nodejs.org) to install the requirements.
+
+    ```bash
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+    npm install --save
+    npm run build
+    ```
+
+* Create [PostgreSQL](https://www.postgresql.org) database. Then, create environmental variables *DATABASE_URI*
+with the address of that database. Also, set environmental variable *SECRET_KEY* used for administering the app.
+
+    * Linux/MacOS:
+    
+        ```bash
+        export DATABASE_URI=postgres://{USER}:{PASSWORD}@{HOSTNAME}:{PORT}/{DB NAME}
+        export SECRET_KEY={YOUR SECRET KEY}
+        ```
+
+    * Windows:
+    
+        ```cmd
+        set DATABASE_URI=postgres://{USER}:{PASSWORD}@{HOSTNAME}:{PORT}/{DB NAME}
+        set SECRET_KEY={YOUR SECRET KEY}
+        ```
+
+* Create the necessary databases.
+
+    ```bash
+    flask create-db
+    ```
+
+* Run the *run.py* file. Your application should be at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
+
+    ```bash
+    python run.py
+    ```
 
 ## TODO:
 **Login and Registration**
@@ -60,7 +92,7 @@ python run.py
 - [ ] Black mode
 
 **Learn and Use**
-- [ ] Docker container
+- [x] Docker container
 - [ ] More unit tests
 - [ ] CI/CD and Scalability
 - [ ] Security concerns

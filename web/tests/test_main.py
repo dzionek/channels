@@ -1,5 +1,5 @@
 from datetime import datetime
-from app.main.utils import channel_has_invalid_name, pretty_time
+from app.main.utils import pretty_time
 
 class TestUtils:
     def test_pretty_time(self) -> None:
@@ -9,21 +9,3 @@ class TestUtils:
         assert pretty_time(date1) == '2000-01-07 01:30'
         assert pretty_time(date2) == '2077-10-29 00:00'
         assert pretty_time(date3) == '2040-07-31 23:59'
-
-    def test_invalid_channel_name(self) -> None:
-        assert channel_has_invalid_name('')
-        assert channel_has_invalid_name(' leadingspace')
-        assert channel_has_invalid_name('trailingspace ')
-        assert channel_has_invalid_name('@=)(%^')
-        assert channel_has_invalid_name('this illegal @ char is in the middle')
-        assert channel_has_invalid_name(' ')
-        assert channel_has_invalid_name('Mytitle!')
-
-    def test_valid_channel_name(self) -> None:
-        assert not channel_has_invalid_name('legal channel')
-        assert not channel_has_invalid_name('a')
-        assert not channel_has_invalid_name('A')
-        assert not channel_has_invalid_name('AbcDeFgHiJkL')
-        assert not channel_has_invalid_name('a b c d e f g h i j k l m')
-        assert not channel_has_invalid_name('my_title')
-        assert not channel_has_invalid_name('my-title')

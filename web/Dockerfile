@@ -16,8 +16,7 @@ RUN pip install --upgrade pip &&\
     pip install -r requirements.txt
 
 # Install npm and JS dependencies
-RUN apt-get -y install npm &&\
-    npm install npm@latest -g &&\
+RUN apt-get -y -qq install npm &&\
     npm install --save &&\
     npm run build
 

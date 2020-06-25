@@ -3,13 +3,13 @@ version: '3.7'
 services:
   web:
     build: ./web
-    command: flask run -h 0.0.0.0
-    volumes:
-      - ./web:/usr/src/app/
+    command: python manage.py run -h 0.0.0.0
     ports:
       - 5000:5000
     env_file:
       - ./flask.env.dev
+    depends_on:
+      - db
 
   db:
     image: postgres:13-alpine

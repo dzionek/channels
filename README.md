@@ -64,13 +64,13 @@ with the address of that database. Also, set environmental variable *SECRET_KEY*
 * Create the necessary databases.
 
     ```bash
-    flask create-db
+    python manage.py create-db
     ```
 
-* Run the *run.py* file. Your application should be at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
+* Run the app. Your application should be at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
 
     ```bash
-    python run.py
+    python manage.py run
     ```
 
 ## TODO:
@@ -94,6 +94,5 @@ with the address of that database. Also, set environmental variable *SECRET_KEY*
 **Learn and Use**
 - [x] Docker container
 - [ ] More unit tests
-- [ ] CI/CD and Scalability
-- [ ] Security concerns
-- [ ] Deploy to Heroku
+- [ ] Add Travis CI
+- [ ] Deploy to AWS/Heroku

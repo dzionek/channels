@@ -12,13 +12,13 @@ from flask_login import current_user
 from app.models import db, ChannelAllowList, Message, User, Channel
 from app.models.channel_allowlist import UserRole
 
-from app.sockets.sockets import announce_channel, announce_message
+from app.sockets.sockets import announce_message
 from app.bcrypt.utils import hash_password, check_hashed_password
 
 from app.forms.channel import UpdateChannelForm, AddChannelForm, JoinChannelForm
 
 def add_channel(channel_name: str) -> None:
-    """Add channel to the database and emit its name with Socket.IO.
+    """Add the given channel to the database.
 
     Args:
         channel_name: Name of the channel to be added.
@@ -26,7 +26,6 @@ def add_channel(channel_name: str) -> None:
     """
     db.session.add(Channel(name=channel_name))
     db.session.commit()
-    announce_channel(channel_name)
 
 def pretty_time(full_time: datetime) -> str:
     """Take datetime object and get its string of the form YYYY-MM-DD HH:MM.

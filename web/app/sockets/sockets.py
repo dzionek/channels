@@ -4,16 +4,6 @@ Module containing Socket.IO emitting or callback functions.
 
 from .base import socket_io
 
-def announce_channel(channel_name: str) -> None:
-    """Emit information about the channel that was added to DB.
-
-    Args:
-        channel_name: Name of the channel that was added.
-
-    """
-    response = {'channelName': channel_name}
-    socket_io.emit('announce channel', response, broadcast=True)
-
 def announce_message(user_name: str, user_picture: str, time: str, channel: str, message_content: str) -> None:
     """Emit all information about the message that was added to DB.
 

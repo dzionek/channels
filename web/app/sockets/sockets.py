@@ -1,8 +1,8 @@
-from .base import socket_io
-
 """
 Module containing Socket.IO emitting or callback functions.
 """
+
+from .base import socket_io
 
 def announce_channel(channel_name: str) -> None:
     """Emit information about the channel that was added to DB.

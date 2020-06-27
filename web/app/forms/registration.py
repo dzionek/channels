@@ -1,13 +1,13 @@
+"""
+Module containing the registration form class.
+"""
+
 from sqlalchemy import func
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField
 from wtforms.validators import Length, EqualTo, DataRequired, Email, ValidationError
 
 from app.models.user import User
-
-"""
-Module containing the registration form.
-"""
 
 class RegistrationForm(FlaskForm):
     """Form shown when user want to register.

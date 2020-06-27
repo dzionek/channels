@@ -1,3 +1,7 @@
+"""
+Module containing the form to update the user's profile.
+"""
+
 from flask_wtf import FlaskForm
 from sqlalchemy import func
 from wtforms import StringField, SubmitField, ValidationError
@@ -7,11 +11,16 @@ from flask_login import current_user
 
 from app.models.user import User
 
-"""
-Module containing the form to update the user's profile.
-"""
-
 class UpdateProfileForm(FlaskForm):
+    """Form to update the data of a user.
+
+    Fields:
+        username: Name of the user.\n
+        email: Email of the user.\n
+        profile_picture: File which will be profile picture of a user.\n
+        submit: Submit the form.\n
+
+    """
     username = StringField('Username', validators=[DataRequired(), Length(min=2, max=20)])
     email = StringField('Email Address', validators=[DataRequired(), Email()])
     profile_picture = FileField('Profile Picture', validators=[FileAllowed(['jpg', 'png'], 'You can only add images!')])

@@ -1,4 +1,8 @@
-from typing import Tuple, Any, Optional
+"""
+All routes of the "main" blueprint.
+"""
+
+from typing import Tuple, Any
 
 from flask import request, render_template, jsonify, flash, redirect, url_for, Markup
 from flask_login import current_user, login_required
@@ -6,16 +10,12 @@ from flask_login import current_user, login_required
 from .base import main
 from .utils import add_channel, get_messages, add_message, process_add_channel_form, process_update_channel_form, \
     process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users, \
-    admin_invalid, is_admin, admin_manager, check_channel_settings_form
+    is_admin, admin_manager, check_channel_settings_form
 
-from app.models import db, Channel, ChannelAllowList, User
+from app.models import db, Channel, ChannelAllowList
 from app.models.channel_allowlist import UserRole
 
 from app.forms.channel import AddChannelForm, UpdateChannelForm, JoinChannelForm
-
-"""
-Routes for the main functionality of the app.
-"""
 
 @main.route('/app', methods=['GET', 'POST'])
 @login_required
@@ -24,7 +24,7 @@ def setup_app() -> str:
     template with them.
 
     Returns:
-        Rendered template of the main app.
+        The rendered template of the main app.
 
     """
     add_channel_form = AddChannelForm()
@@ -71,7 +71,7 @@ def setup_app() -> str:
 @main.route('/add-channel', methods=['POST'])
 @login_required
 def add_channel_ajax() -> Any:
-    """Take POST form with the parameter 'channelName' and add the channel to database."""
+    """Take POST form with the parameter "channelName" and add the channel to database."""
     channel_name = request.form.get('channelName')
     add_channel(channel_name)
 
@@ -144,7 +144,14 @@ def get_initial_counter_ajax() -> Any:
 
 @main.route('/leave-channel', methods=['POST'])
 @login_required
-def leave_channel():
+def leave_channel() -> str:
+    """Remove the current user from the channel which name she/he has given in the POST form.
+    Show appropriate message after leaving the channel. Set up the app again for this user.
+
+    Returns:
+        The redirection to the main page of the app.
+
+    """
     channel_name = request.form.get("channel")
     channel_id = Channel.query.filter_by(name=channel_name).first().id
 
@@ -163,11 +170,24 @@ def leave_channel():
     return redirect(url_for('main.setup_app'))
 
 def no_channel() -> str:
+    """Show the message that the given channel is inaccessible by the user.
+
+    Returns:
+        The redirection to the main page of the app.
+
+    """
     flash("The channel doesn't exist or you don't have necessary permission.", 'danger')
     return redirect(url_for('main.setup_app'))
 
 @main.route('/is-admin', methods=['POST'])
 def is_admin_ajax():
+    """Check if the current user is an admin of the channel which name has been given
+    in the POST form. Return appropriate JSON as a response.
+
+    Returns:
+        JSON response to the AJAX caller.
+
+    """
     channel_name = request.form.get('channelName')
     if not channel_name:
         return jsonify({'response': False})
@@ -182,6 +202,16 @@ def is_admin_ajax():
 @main.route('/channel/<string:channel_name>', methods=['GET'])
 @login_required
 def channel_settings(channel_name: str) -> str:
+    """Check if the current user can see the settings of the given channel.
+    If she/he can, then generate the page with the settings of the given channel.
+
+    Args:
+        channel_name: Name of the channel which settings page should be generated.
+
+    Returns:
+        Template of the channel settings page if successful, otherwise redirection to the main page.
+
+    """
     channel = Channel.query.filter_by(name=channel_name).first()
 
     if not channel:
@@ -218,6 +248,12 @@ def make_admin():
 @main.route('/revoke-admin', methods=['POST'])
 @login_required
 def revoke_admin():
+    """Get user's an channel's ID from the POST form. Revoke the admin privileges of the user if possible.
+
+    Returns:
+        The redirection to the channel settings page with appropriate flash message.
+
+    """
     channel_id = request.form.get('channel_id')
     user_id = request.form.get('user')
     return admin_manager(command='revoke', channel_id=channel_id, user_id=user_id)
@@ -225,6 +261,12 @@ def revoke_admin():
 @main.route('/remove-user', methods=['POST'])
 @login_required
 def remove_user() -> str:
+    """Get user's an channel's ID from the POST form. Remove the user form the channel if possible.
+
+    Returns:
+        The redirection to the channel settings page with appropriate flash message.
+
+    """
     channel_id = request.form.get('channel_id')
     user_id = request.form.get('user')
 

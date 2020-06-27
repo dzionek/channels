@@ -1,8 +1,8 @@
-from .base import bcrypt
+"""
+Utility functions making use of bcrypt.
+"""
 
-"""
-Utility functions related to bcrypt
-"""
+from .base import bcrypt
 
 def hash_password(password: str) -> str:
     """Get hashed password.

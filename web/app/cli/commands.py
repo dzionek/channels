@@ -1,9 +1,9 @@
-from .bp import cli_bp
-from app.models.base import db
-
 """
 Module containing all custom CLI commands.
 """
+
+from .bp import cli_bp
+from app.models.base import db
 
 @cli_bp.cli.command('create-db')
 def create_db() -> None:

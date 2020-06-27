@@ -1,8 +1,8 @@
-from .base import db
-
 """
 Module containing class of the channel model.
 """
+
+from .base import db
 
 class Channel(db.Model):
     """Model of the channel for storing messages.

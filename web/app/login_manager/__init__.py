@@ -1,12 +1,13 @@
+"""
+This package is responsible for login manager integration.
+This particular module contains Login Manager initialization with user loading.
+"""
+
 from flask import Flask
 from typing import Optional
 
 from .base import login_manager
 from app.models.user import User
-
-"""
-Module containing Login Manager initialization with user loading.
-"""
 
 def init_app(app: Flask) -> None:
     """Initialize Login Manager in the app.

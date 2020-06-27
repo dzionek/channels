@@ -1,3 +1,7 @@
+"""
+All routes of the "login" blueprint.
+"""
+
 from flask import render_template, flash, url_for, redirect, request
 from flask_login import login_user, current_user, logout_user, login_required
 
@@ -13,10 +17,6 @@ from app.forms.login import LoginForm
 from app.forms.update_profile import UpdateProfileForm
 
 from app.models.user import User
-
-"""
-Routes for the functionality of the app related to login.
-"""
 
 @login.route('/', methods=['GET', 'POST'])
 def index() -> Union[Response, str]:

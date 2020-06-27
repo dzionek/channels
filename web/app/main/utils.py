@@ -1,8 +1,12 @@
+"""
+Utility functions for main routes.
+"""
+
 from datetime import datetime
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, Tuple, List
 from werkzeug.wrappers import Response
 
-from flask import jsonify, url_for, redirect, flash, request
+from flask import jsonify, url_for, redirect, flash
 from flask_login import current_user
 
 from app.models import db, ChannelAllowList, Message, User, Channel
@@ -12,12 +16,9 @@ from app.sockets.sockets import announce_channel, announce_message
 from app.bcrypt.utils import hash_password, check_hashed_password
 
 from app.forms.channel import UpdateChannelForm, AddChannelForm, JoinChannelForm
-"""
-Utility functions for main routes.
-"""
 
 def add_channel(channel_name: str) -> None:
-    """Add channel to the database and emit it with Socket.IO.
+    """Add channel to the database and emit its name with Socket.IO.
 
     Args:
         channel_name: Name of the channel to be added.
@@ -139,6 +140,16 @@ def process_add_channel_form(form: AddChannelForm) -> Response:
     return redirect(url_for('main.setup_app'))
 
 def process_join_channel_form(form: JoinChannelForm) -> str:
+    """Check if the submitted JoinChannelForm is valid. If it is, add the current user to the given channel.
+    Flask appropriate message.
+
+    Args:
+        form: The submitted JoinChannelForm.
+
+    Returns:
+        The redirection to the main page of the app.
+
+    """
     channel = Channel.query.filter_by(name=form.name.data).first()
 
     if is_valid_channel(channel, form):
@@ -153,54 +164,116 @@ def process_join_channel_form(form: JoinChannelForm) -> str:
     return redirect(url_for('main.setup_app'))
 
 def process_update_channel_form(form: UpdateChannelForm):
+    """TODO"""
     pass
 
 def get_number_of_channels_users(channel: Channel) -> int:
+    """Get the number of users allowed to see the given channel.
+
+    Args:
+        channel: The channel which number of users the function should return.
+
+    Returns:
+        The number of users of the channel.
+
+    """
     return ChannelAllowList.query.filter_by(channel_id=channel.id).count()
 
 def get_number_of_channels_messages(channel: Channel) -> int:
+    """Get the number of messages that have been sent to the given channel.
+
+    Args:
+        channel: The channel which number of messages the function should return.
+
+    Returns:
+        The number of messages of the channel.
+
+    """
     return len(channel.messages)
 
-def get_channels_users(channel: Channel) -> Tuple[User]:
+def get_channels_users(channel: Channel) -> List[User]:
+    """Get all users allowed to see the given channel.
+
+    Args:
+        channel: The channel which users the function should return.
+
+    Returns:
+        List of users of the channel.
+
+    """
     channel_allowed_records = ChannelAllowList.query.filter_by(channel_id=channel.id).all()
     return [User.query.get(record.user_id) for record in channel_allowed_records]
 
 def is_admin(channel: Channel, user: User) -> bool:
+    """Check if the given user is admin of the given channel.
+
+    Args:
+        channel: The channel we check the user is admin of.
+        user: The candidate admin.
+
+    Returns:
+        True if the user is admin of the channel, false otherwise.
+
+    """
     allowed_record = (ChannelAllowList.query.filter_by(channel_id=channel.id)
                       .filter_by(user_id=user.id).first())
     return allowed_record and allowed_record.user_role == UserRole.ADMIN.value
 
-def check_channel_settings_form(channel_id: str, user: str) -> Optional[Tuple[Channel, User]]:
-    if not channel_id or not user:
-        print(f"invalid function's params: channel_id={channel_id}, user={user}")
+def check_channel_settings_form(channel_id: str, user_id: str) -> Optional[Tuple[Channel, User]]:
+    """Check if the given user and channels IDs match a record in the DB. Also check if the current user
+    is admin of this given channel. If everything is correct, then channel and user objects will be returned.
+
+    Notes:
+        The IDs come from an HTML form, so they are given as a str values!
+
+    Args:
+        channel_id: ID of the channel from submitted form.
+        user_id: ID of the user from submitted form.
+
+    Returns:
+        None or the found tuple of channel and user.
+
+    """
+    if not channel_id or not user_id:
         return None
 
     try:
         channel_id = int(channel_id)
-        user_id = int(user)
+        user_id = int(user_id)
     except ValueError:
-        print(f"This values are not integers: channel_id={channel_id}, user={user}")
         return None
 
     channel = Channel.query.get(channel_id)
 
     if not channel:
-        print(f"No channel: {channel}")
         return None
 
     user = User.query.get(user_id)
 
     if not user:
-        print(f"No user: {user}")
         return None
 
     if not is_admin(channel, current_user):
-        print(f"Current user is not admin: {current_user} on {channel}")
         return None
     else:
         return channel, user
 
 def admin_manager(command: str, channel_id: str, user_id: str):
+    """Make admin or revoke admin privileges of the user (whose ID was given)
+    in the given channel (which ID was given).
+
+    Notes:
+        The IDs come from an HTML form, so they are given as a str values!
+
+    Args:
+        command: Either "make" or "revoke".
+        channel_id: ID of the channel filled in the form.
+        user_id: ID of the user filled in the form.
+
+    Returns:
+        The redirection to the channel settings page or the main page.
+
+    """
     checked_value = check_channel_settings_form(channel_id, user_id)
 
     if not checked_value:
@@ -212,10 +285,8 @@ def admin_manager(command: str, channel_id: str, user_id: str):
                     .filter_by(user_id=user_id).first())
 
     if not allow_record:
-        print(f"There is no allow_record: {allow_record}")
         return admin_invalid()
 
-    print(f"The command is {command}")
     if command == 'make':
         allow_record.user_role = UserRole.ADMIN.value
         db.session.commit()
@@ -223,13 +294,19 @@ def admin_manager(command: str, channel_id: str, user_id: str):
     elif command == 'revoke':
         allow_record.user_role = UserRole.NORMAL_USER.value
         db.session.commit()
-        message = 'no longer'
+        message = 'is no longer'
     else:
         return admin_invalid()
 
-    flash(f'The user {User.query.get(user_id).username} {message} admin of this channel.', 'success')
-    return redirect(f'channel/{Channel.query.get(channel_id).name}')
+    flash(f'The user {user.username} {message} admin of this channel.', 'success')
+    return redirect(f'channel/{channel.name}')
 
 def admin_invalid() -> str:
+    """Flash a message when it has turned out that the current user is not admin.
+
+    Returns:
+        The redirection to the main page of the app.
+
+    """
     flash("It wasn't possible to modify the role of the given user.", 'danger')
     return redirect(url_for('main.setup_app'))

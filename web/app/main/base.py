@@ -1,7 +1,7 @@
-from flask import Blueprint
+"""
+Module containing the "main" blueprint instance.
+"""
 
-"""
-Module containing the blueprint for 'main' routes.
-"""
+from flask import Blueprint
 
 main = Blueprint('main', __name__)

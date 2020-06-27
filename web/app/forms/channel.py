@@ -1,3 +1,7 @@
+"""
+Module containing the classes of the forms to add and update a channel.
+"""
+
 import re
 
 from flask_wtf import FlaskForm
@@ -5,10 +9,6 @@ from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, ValidationError, Length, EqualTo
 
 from app.models.channel import Channel
-
-"""
-Module containing the forms to add and update a channel.
-"""
 
 class ChannelForm(FlaskForm):
     """Base channel form class with methods to validate the email."""
@@ -50,6 +50,14 @@ class ChannelForm(FlaskForm):
 
 
 class AddChannelForm(ChannelForm):
+    """Form to create a new channel.
+
+    Fields:
+        name: The name of the channel.\n
+        password: The password of the channel.\n
+        confirm_password: The same password repeated for the second time.\n
+        submit_add: The submit button to send the form.
+    """
     name = StringField('Name of the new channel', validators=[DataRequired(), Length(min=2, max=20)])
     password = PasswordField('Password', validators=[DataRequired()])
     confirm_password = PasswordField('Confirm Password', validators=[
@@ -58,21 +66,56 @@ class AddChannelForm(ChannelForm):
     submit_add = SubmitField('Add now!')
 
     def validate_name(self, name: StringField) -> None:
+        """Check if the filled name of the channel is valid.
+
+        The name of the channel is valid if it is unique and of the appropriate form.
+
+        Args:
+            name: The filled form of a channel.
+
+        Raises:
+            ValidationError: If the name is not valid.
+
+        """
         if self._channel_already_exists(name.data):
             raise ValidationError('This channel name is taken. Choose a different one.')
         elif self._channel_has_invalid_name(name.data):
             raise ValidationError('Name of the channel is invalid.')
 
 class JoinChannelForm(ChannelForm):
+    """Form to join a channel.
+
+    Fields:
+        name: The name of the channel.\n
+        password: The password of the channel.\n
+        submit_join: The submit button to join the channel.
+    """
     name = StringField('Name of the new channel', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit_join = SubmitField('Join now!')
 
 class UpdateChannelForm(ChannelForm):
+    """Form to update an existing channel.
+
+    Fields:
+        name: The name of the channel.\n
+        submit_update: The submit button to update the channel.
+    """
     name = StringField('New name of the channel', validators=[DataRequired()])
     submit_update = SubmitField('Update the channel')
 
     def validate_name(self, name: StringField) -> None:
+        """Check if the filled name of the channel is valid.
+
+        The name of the channel is valid if it is unique and of the appropriate form.
+
+        Args:
+            name: The filled form of a channel.
+
+        Raises:
+            ValidationError: If the name is not valid.
+
+        """
         if self._channel_already_exists(name.data):
             raise ValidationError('This channel name is either taken or the current name. Choose a different one.')
         elif self._channel_has_invalid_name(name.data):

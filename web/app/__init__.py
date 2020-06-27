@@ -1,12 +1,13 @@
+"""
+This is the main package of the application.
+This particular module contains the app factory.
+"""
+
 from flask import Flask
 
 from .config import configure_app
 from . import models, main, login, sockets, bcrypt, login_manager, cli
 import app.cli.commands
-
-"""
-Module containing the app factory.
-"""
 
 def create_app() -> Flask:
     """Flask app factory initialising all its components.

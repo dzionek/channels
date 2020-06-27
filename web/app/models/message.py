@@ -1,8 +1,8 @@
-from .base import db
-
 """
 Module containing class of the message model.
 """
+
+from .base import db
 
 class Message(db.Model):
     """Model of the message users sent to channels.

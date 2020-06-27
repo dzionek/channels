@@ -1,10 +1,10 @@
+"""
+Module containing the login form class.
+"""
+
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, SubmitField, BooleanField
 from wtforms.validators import DataRequired, Email
-
-"""
-Module containing the login form.
-"""
 
 class LoginForm(FlaskForm):
     """Form shown when user want to sign in.

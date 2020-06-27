@@ -1,11 +1,11 @@
-from enum import Enum
-
-from .base import db
-
 """
 Module containing the model storing permits for users to see channels.
 Along with that, it has a helper enum saying what role the user has.
 """
+
+from enum import Enum
+
+from .base import db
 
 class UserRole(Enum):
     """Describe the user role in the channel.

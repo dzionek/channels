@@ -1,3 +1,7 @@
+"""
+Utility functions for login routes.
+"""
+
 from secrets import token_hex
 from os import path, remove
 from PIL import Image
@@ -15,10 +19,6 @@ from app.forms.login import LoginForm
 from app.models import db, ChannelAllowList, Message
 
 from app.models.user import User, DEFAULT_PROFILE_PICTURE
-
-"""
-Utility functions for login routes.
-"""
 
 IMAGE_SIDE_SIZE: Final = 125
 

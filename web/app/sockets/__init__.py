@@ -1,9 +1,10 @@
+"""
+This package implements Socket.IO and its methods within the application.
+This particular module contains Socket.IO initialization.
+"""
+
 from flask import Flask
 from .base import socket_io
-
-"""
-Module containing Socket.IO initialization.
-"""
 
 def init_app(app: Flask) -> None:
     """Initialize Socket.IO in the app.

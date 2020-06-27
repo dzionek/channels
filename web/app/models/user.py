@@ -1,11 +1,13 @@
-from flask_login import UserMixin
-
-from .base import db
-
 """
 Module containing the class of the user model.
 """
 
+from flask_login import UserMixin
+
+from .base import db
+
+# If the user has not uploaded own profile picture,
+# this default one (in static/img/profile_pictures) will be used.
 DEFAULT_PROFILE_PICTURE = 'default.png'
 
 class User(db.Model, UserMixin):

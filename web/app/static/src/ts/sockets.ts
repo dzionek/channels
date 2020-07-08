@@ -33,3 +33,24 @@ function show_added_message(): void {
         appendMessageBottom(data.userName, data.userPicture, data.time, data.messageContent)
     })
 }
+
+/**
+ * Handle room joining and leaving for WebSocket.
+ */
+export function roomManager(oldChannel: string, newChannel: string): void {
+    console.log(`Old channel: ${oldChannel}. New channel: ${newChannel}.`)
+
+    if (oldChannel != null) {
+        socket.emit('leave room', oldChannel)
+    }
+    socket.emit('join room', newChannel)
+}
+
+/**
+ * Add the given message to the database.
+ * @param messageContent  content of the message to be added.
+ * @param currentChannel  name of the channel the message was sent to.
+ */
+export function addMessageToDB(messageContent: string, currentChannel: string): void {
+    socket.emit('add message', {'message_content': messageContent, 'channel': currentChannel})
+}

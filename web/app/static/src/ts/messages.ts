@@ -1,4 +1,5 @@
 import {sleep} from './utils'
+import {roomManager, addMessageToDB} from './sockets'
 import {addChannelName} from './manage-channel'
 
 /**
@@ -231,6 +232,7 @@ async function activateManageButton(currentChannel: string): Promise<void> {
 function switchChannel(channel: HTMLElement): void {
     channel.addEventListener('click', async function () {
         showInputField()
+        roomManager(currentChannel, this.dataset.channel)
         currentChannel = this.dataset.channel
         showChannelTitle()
 
@@ -255,26 +257,13 @@ export function channelSwitcher(): void {
 }
 
 /**
- * Add the given message to the database.
- * @param messageContent  content of the message to be added.
- */
-function addMessageToDB(messageContent: string): void {
-    const xhr = new XMLHttpRequest()
-    xhr.open('POST', '/add-message')
-    const data = new FormData()
-    data.append('messageContent', messageContent)
-    data.append('channel', currentChannel)
-    xhr.send(data)
-}
-
-/**
  * Send the message to the {@link currentChannel}.
  * @param textArea  text area where the content of the message is.
  */
 function sendMessageListener(textArea: HTMLTextAreaElement): void {
     const messageContent = textArea.value
     if (messageContent != '') {
-        addMessageToDB(messageContent)
+        addMessageToDB(messageContent, currentChannel)
         textArea.value = ''
     }
 }

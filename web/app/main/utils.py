@@ -12,7 +12,6 @@ from flask_login import current_user
 from app.models import db, ChannelAllowList, Message, User, Channel
 from app.models.channel_allowlist import UserRole
 
-from app.sockets.sockets import announce_message
 from app.bcrypt.utils import hash_password, check_hashed_password
 
 from app.forms.channel import UpdateChannelForm, AddChannelForm, JoinChannelForm
@@ -70,30 +69,6 @@ def get_messages(channel_name: str, counter: int) -> Any:
         for message in messages[max(counter - num_messages_loaded_at_once, 0):counter]
     ]
     return jsonify({'messages': messages_response})
-
-def add_message(message_content: str, channel: str) -> None:
-    """Add the given message to the given channel in database. Emit the message with Socket.IO
-    after adding it.
-
-    Args:
-        message_content: Content of the message to be added.
-        channel: Channel the message should be added to.
-
-    """
-    username = current_user.username
-    user_id = current_user.id
-    user_picture = f"{url_for('static', filename='img/profile_pictures')}/{ current_user.profile_picture }"
-
-    full_time = datetime.now()
-
-    channel_id = Channel.query.filter_by(name=channel).first().id
-
-    db.session.add(Message(
-        content=message_content, user_id=user_id, time=full_time, channel_id=channel_id
-    ))
-
-    db.session.commit()
-    announce_message(username, user_picture, pretty_time(full_time), channel, message_content)
 
 def is_valid_channel(channel: Optional[Channel], form: AddChannelForm) -> bool:
     """Check if the given channel exists and then check if the password provided in the "join channel" form

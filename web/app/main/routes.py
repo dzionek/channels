@@ -2,13 +2,13 @@
 All routes of the "main" blueprint.
 """
 
-from typing import Tuple, Any
+from typing import Any
 
-from flask import request, render_template, jsonify, flash, redirect, url_for, Markup
+from flask import request, render_template, jsonify, flash, redirect, url_for, Markup, abort, Response
 from flask_login import current_user, login_required
 
 from .base import main
-from .utils import add_channel, get_messages, add_message, process_add_channel_form, process_update_channel_form, \
+from .utils import add_channel, get_messages, process_add_channel_form, process_update_channel_form, \
     process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users, \
     is_admin, admin_manager, check_channel_settings_form
 
@@ -83,47 +83,16 @@ def get_messages_ajax() -> Any:
     Returns:
         JSON response consisting of all messages in this channel.
 
-    Raises:
-        ValueError: If channelName is None.
-
     """
     channel_name = request.form.get('channelName')
     counter = request.form.get('counter')
 
-    if channel_name is None or counter is None:
-        raise ValueError('Channel name and counter must not be None.')
-    else:
-        channel_name = str(channel_name)
+    try:
         counter = int(counter)
-
-    return get_messages(channel_name, counter)
-
-@main.route('/add-message', methods=['POST'])
-@login_required
-def add_message_ajax() -> Tuple[str, int]:
-    """Take POST form with the parameters 'messageContent' and 'channel'. Add the message to the channel
-    and save it in the database.
-
-    Returns:
-        Empty response with 204 status code.
-
-    Raises:
-        ValueError: If message_content or channel is None.
-
-    """
-    message_content = request.form.get('messageContent')
-    channel = request.form.get('channel')
-
-    if message_content is None:
-        raise ValueError('Message content must not be None.')
-    elif channel is None:
-        raise ValueError('Channel must not be None.')
+    except ValueError:
+        abort(Response('Fatal error. Messages cannot be received!'))
     else:
-        message_content, channel = str(message_content), str(channel)
-
-    add_message(message_content, channel)
-
-    return '', 204
+        return get_messages(channel_name, counter)
 
 @main.route('/initial-counter', methods=['POST'])
 @login_required

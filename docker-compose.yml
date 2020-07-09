@@ -3,7 +3,7 @@ version: '3.7'
 services:
   web:
     build: ./web
-    command: python manage.py run -h 0.0.0.0
+    command: python run.py
     ports:
       - 5000:5000
     env_file:

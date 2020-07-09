@@ -13,6 +13,6 @@ fi
 
 echo "Databases are being created."
 
-python manage.py create-db
+flask create-db
 
 exec "$@"

@@ -41,9 +41,10 @@ export function roomManager(oldChannel: string, newChannel: string): void {
     console.log(`Old channel: ${oldChannel}. New channel: ${newChannel}.`)
 
     if (oldChannel != null) {
-        socket.emit('leave room', oldChannel)
+        socket.emit('leave room',{'room': oldChannel})
     }
-    socket.emit('join room', newChannel)
+
+    socket.emit('join room', {'room': newChannel})
 }
 
 /**

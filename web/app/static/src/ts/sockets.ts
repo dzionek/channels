@@ -38,9 +38,8 @@ function show_added_message(): void {
  * Handle room joining and leaving for WebSocket.
  */
 export function roomManager(oldChannel: string, newChannel: string): void {
-    console.log(`Old channel: ${oldChannel}. New channel: ${newChannel}.`)
 
-    if (oldChannel != null) {
+    if (oldChannel != undefined) {
         socket.emit('leave room',{'room': oldChannel})
     }
 

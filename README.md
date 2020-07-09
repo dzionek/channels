@@ -64,13 +64,13 @@ with the address of that database. Also, set environmental variable *SECRET_KEY*
 * Create the necessary databases.
 
     ```bash
-    python manage.py create-db
+    flask create-db
     ```
 
-* Run the app. Your application should be at [http://127.0.0.1:5000/](http://127.0.0.1:5000/).
+* Run the app. Your application should be at [localhost:5000](localhost:5000).
 
     ```bash
-    python manage.py run
+    python run.py
     ```
 
 ## TODO:

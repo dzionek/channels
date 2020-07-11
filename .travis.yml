@@ -1,8 +1,12 @@
 language: python
 python:
   - 3.8
-before_install:
-  - cd web
-install:
-  - pip install -r requirements.txt
-script: pytest
+
+services:
+  - docker
+
+before_script:
+  - pip install docker-compose
+
+script:
+  - docker-compose run web sh -c "pytest"

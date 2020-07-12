@@ -5,8 +5,16 @@ python:
 services:
   - docker
 
+install:
+  - pip install codecov
+
 before_script:
   - pip install docker-compose
 
 script:
-  - docker-compose run web sh -c "pytest"
+  - docker-compose up -d
+  - docker exec -it $(docker ps -aqf "name=channels_web") /bin/sh -c "pytest --cov-report=xml --cov=app/"
+  - docker cp $(docker ps -aqf "name=channels_web"):/usr/src/app/coverage.xml .
+
+after_success:
+  - codecov

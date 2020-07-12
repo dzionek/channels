@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/dzionek/channels.svg?branch=master)](https://travis-ci.org/dzionek/channels)
+[![codecov](https://codecov.io/gh/dzionek/channels/branch/master/graph/badge.svg)](https://codecov.io/gh/dzionek/channels)
 # Channels
 
 Flask web-application where you can create own channels, manage them, and chat with your friends/colleagues.

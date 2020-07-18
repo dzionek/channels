@@ -1,4 +1,4 @@
-"""Test forms package"""
+"""Test the forms package."""
 
 import pytest
 from wtforms import StringField

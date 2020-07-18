@@ -1,4 +1,4 @@
-"""Test Bcrypt package"""
+"""Test the Bcrypt package."""
 
 from app.bcrypt.utils import check_hashed_password, hash_password
 

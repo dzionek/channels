@@ -40,5 +40,5 @@ class ChannelAllowList(db.Model):
         """
 
         return ("ChannelAllowList(" +
-                f"channel_id={self.channel_id}, user_id={self.user_id}, user_mode={self.user_mode}" +
+                f"channel_id={self.channel_id}, user_id={self.user_id}, user_role={self.user_role}" +
                 ")")

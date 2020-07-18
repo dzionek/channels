@@ -1,4 +1,4 @@
-"""Test CLI package."""
+"""Test the CLI package."""
 
 import pytest
 

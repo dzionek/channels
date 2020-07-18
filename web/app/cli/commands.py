@@ -12,7 +12,7 @@ def create_db() -> None:
     print('All the databases were successfully created!')
 
 @cli_bp.cli.command('drop-db')
-def create_db() -> None:
+def drop_db() -> None:
     """Drop all databases created from models."""
     db.drop_all()
     print('All the databases were successfully dropped!')

@@ -1,3 +1,5 @@
+"""Test Bcrypt package"""
+
 from app.bcrypt.utils import check_hashed_password, hash_password
 
 class TestUtils:

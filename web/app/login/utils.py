@@ -11,6 +11,7 @@ from flask_login import current_user
 from typing import Optional, Final
 from werkzeug.datastructures import FileStorage
 
+from app.path import APP_PATH
 from app.bcrypt.utils import hash_password, check_hashed_password
 
 from app.forms.registration import RegistrationForm
@@ -96,7 +97,7 @@ def get_profile_picture_full_path(profile_picture_filename: str) -> str:
         The full path to the profile picture.
 
     """
-    return path.join('app', 'static', 'img', 'profile_pictures', profile_picture_filename)
+    return path.join(APP_PATH, 'app', 'static', 'img', 'profile_pictures', profile_picture_filename)
 
 def remove_old_profile_picture() -> None:
     """Remove the profile picture of the current user."""

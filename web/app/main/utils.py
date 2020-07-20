@@ -15,16 +15,6 @@ from app.bcrypt.utils import hash_password, check_hashed_password
 
 from app.forms.channel import UpdateChannelForm, AddChannelForm, JoinChannelForm
 
-def add_channel(channel_name: str) -> None:
-    """Add the given channel to the database.
-
-    Args:
-        channel_name: Name of the channel to be added.
-
-    """
-    db.session.add(Channel(name=channel_name))
-    db.session.commit()
-
 def convert_time_to_string(time: datetime) -> str:
     """Convert UTC time to the local time of the user and return its string format.
 

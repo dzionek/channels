@@ -22,6 +22,7 @@ def route_context(func: Callable) -> Callable:
     """Decorator used for testing the routes."""
     def wrapper(*args, **kwargs) -> None:
         """Wrapper of the decorator."""
+        app.config['TESTING'] = True
         app.config['WTF_CSRF_ENABLED'] = False
         with app.app_context():
             db.drop_all()

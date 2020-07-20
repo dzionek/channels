@@ -8,11 +8,11 @@ from flask import request, render_template, jsonify, flash, redirect, url_for, M
 from flask_login import current_user, login_required
 
 from .base import main
-from .utils import add_channel, get_messages, process_add_channel_form, process_update_channel_form, \
+from .utils import get_messages, process_add_channel_form, process_update_channel_form, \
     process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users, \
     is_admin, admin_manager, check_channel_settings_form
 
-from app.models import db, Channel, ChannelAllowList
+from app.models import db, Channel, ChannelAllowList, Message
 from app.models.channel_allowlist import UserRole
 
 from app.forms.channel import AddChannelForm, UpdateChannelForm, JoinChannelForm
@@ -68,13 +68,6 @@ def setup_app() -> str:
         update_channel_form_invalid=update_channel_form_invalid
     )
 
-@main.route('/add-channel', methods=['POST'])
-@login_required
-def add_channel_ajax() -> Any:
-    """Take POST form with the parameter "channelName" and add the channel to database."""
-    channel_name = request.form.get('channelName')
-    add_channel(channel_name)
-
 @main.route('/get-messages', methods=['POST'])
 @login_required
 def get_messages_ajax() -> Any:
@@ -90,7 +83,10 @@ def get_messages_ajax() -> Any:
     try:
         counter = int(counter)
     except ValueError:
-        abort(Response('Fatal error. Messages cannot be received!'))
+        return abort(Response('Fatal error. Messages cannot be received!'))
+
+    if counter > len(Channel.query.filter_by(name=channel_name).first().messages):
+        return abort(Response('Fatal error. Messages cannot be received! Counter has exceeded the max value.'))
     else:
         return get_messages(channel_name, counter)
 

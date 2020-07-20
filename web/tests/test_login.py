@@ -4,6 +4,7 @@ import pytest
 from datetime import datetime
 import os
 from PIL import Image
+from werkzeug.datastructures import FileStorage
 
 import app.login.utils as u
 from tests.utils import login
@@ -183,3 +184,24 @@ class TestUtils:
 
         assert new_image.getpixel((94, 29)) == (255, 255, 255)
         assert new_image.getpixel((93, 30)) == (0, 0, 0)
+
+    def test_save_profile_picture(self) -> None:
+        directory = os.path.dirname(u.get_profile_picture_full_path('default.png'))
+        assert len(os.listdir(directory)) == 1
+
+        filenames = []
+        with open('tests/assets/test.jpg', 'rb') as fp:
+            file = FileStorage(fp)
+            filename = u.save_profile_picture(file)
+            filenames.append(filename)
+            assert len(os.listdir(directory)) == 2
+
+            for _ in range(5):
+                filename = u.save_profile_picture(file)
+                filenames.append(filename)
+
+        assert len(os.listdir(directory)) == 7
+
+        for full_filename in map(u.get_profile_picture_full_path, filenames):
+            os.remove(full_filename)
+        assert len(os.listdir(directory)) == 1

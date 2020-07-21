@@ -211,10 +211,7 @@ def check_channel_settings_form(channel_id: str, user_id: str) -> Optional[Tuple
 
     user = User.query.get(user_id)
 
-    if not user:
-        return None
-
-    if not is_admin(channel, current_user):
+    if not(user and is_admin(channel, current_user)):
         return None
     else:
         return channel, user

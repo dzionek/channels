@@ -37,3 +37,15 @@ def find_substr_between(full_str: str, left_substr: str, right_substr: str) -> s
         'ccc'
     """
     return (full_str.split(left_substr))[1].split(right_substr)[0]
+
+def decode_bytecode_single_quote(bytecode: bytes) -> str:
+    """Decode bytecode to string and fix single quote.
+
+    Args:
+        bytecode: The bytecode to be decoded.
+
+    Returns:
+        The decoded bytecode.
+
+    """
+    return bytecode.decode("utf8").replace("&#39;", "'")

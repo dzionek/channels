@@ -19,7 +19,15 @@ from app.forms.login import LoginForm
 from app.bcrypt.utils import check_hashed_password, hash_password
 
 def route_context(func: Callable) -> Callable:
-    """Decorator used for testing the routes."""
+    """Decorator used for testing the routes.
+
+    Args:
+        func: The function to be decorated.
+
+    Returns:
+        The decorated function.
+
+    """
     def wrapper(*args, **kwargs) -> None:
         """Wrapper of the decorator."""
         app.config['TESTING'] = True

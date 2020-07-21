@@ -12,7 +12,7 @@ from .utils import get_messages, process_add_channel_form, process_update_channe
     process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users, \
     is_admin, admin_manager, check_channel_settings_form, no_channel
 
-from app.models import db, Channel, ChannelAllowList
+from app.models import db, Channel, ChannelAllowList, User
 from app.models.channel_allowlist import UserRole
 
 from app.forms.channel import AddChannelForm, UpdateChannelForm, JoinChannelForm
@@ -235,7 +235,7 @@ def remove_user() -> str:
 
     checked_value = check_channel_settings_form(channel_id, user_id)
 
-    if not checked_value:
+    if (not checked_value) or is_admin(Channel.query.get(channel_id), User.query.get(user_id)):
         flash("The user can't be removed.", 'danger')
         return redirect(url_for('main.setup_app'))
     else:

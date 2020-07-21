@@ -10,9 +10,9 @@ from flask_login import current_user, login_required
 from .base import main
 from .utils import get_messages, process_add_channel_form, process_update_channel_form, \
     process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users, \
-    is_admin, admin_manager, check_channel_settings_form
+    is_admin, admin_manager, check_channel_settings_form, no_channel
 
-from app.models import db, Channel, ChannelAllowList, Message
+from app.models import db, Channel, ChannelAllowList
 from app.models.channel_allowlist import UserRole
 
 from app.forms.channel import AddChannelForm, UpdateChannelForm, JoinChannelForm
@@ -134,17 +134,8 @@ def leave_channel() -> str:
     flash(Markup(leave_msg), 'success')
     return redirect(url_for('main.setup_app'))
 
-def no_channel() -> str:
-    """Show the message that the given channel is inaccessible by the user.
-
-    Returns:
-        The redirection to the main page of the app.
-
-    """
-    flash("The channel doesn't exist or you don't have necessary permission.", 'danger')
-    return redirect(url_for('main.setup_app'))
-
 @main.route('/is-admin', methods=['POST'])
+@login_required
 def is_admin_ajax():
     """Check if the current user is an admin of the channel which name has been given
     in the POST form. Return appropriate JSON as a response.
@@ -205,7 +196,14 @@ def channel_settings(channel_name: str) -> str:
 
 @main.route('/make-admin', methods=['POST'])
 @login_required
-def make_admin():
+def make_admin() -> str:
+    """Take the POST form with parameters channel_id and user and make the given user
+    admin of the given channel.
+
+    Returns:
+        The redirection to the settings of the channel.
+
+    """
     channel_id = request.form.get('channel_id')
     user_id = request.form.get('user')
     return admin_manager(command='make', channel_id=channel_id, user_id=user_id)

@@ -271,3 +271,13 @@ def admin_invalid() -> str:
     """
     flash("It wasn't possible to modify the role of the given user.", 'danger')
     return redirect(url_for('main.setup_app'))
+
+def no_channel() -> str:
+    """Show the message that the given channel is inaccessible by the user.
+
+    Returns:
+        The redirection to the main page of the app.
+
+    """
+    flash("The channel doesn't exist or you don't have necessary permission.", 'danger')
+    return redirect(url_for('main.setup_app'))

@@ -87,14 +87,14 @@ with the address of that database. Also, set environmental variable *SECRET_KEY*
   - [x] Join a channel modal
   - [x] Add password to channel model
   - [x] Leave a channel
-- [ ] REST API
-- [ ] Refactor and use more OOP
+- [ ] Add REST API
 
 **Design**
 - [ ] Black mode
 
 **Learn and Use**
 - [x] Docker container
-- [ ] More unit tests
-- [ ] Add Travis CI
+- [x] More unit tests
+- [x] Add Travis CI
+- [x] Add CodeCov
 - [ ] Deploy to AWS/Heroku

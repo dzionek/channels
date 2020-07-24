@@ -8,7 +8,7 @@ from flask import request, render_template, jsonify, flash, redirect, url_for, M
 from flask_login import current_user, login_required
 
 from .base import main
-from .utils import get_messages, process_add_channel_form, process_update_channel_form, \
+from .utils import get_messages, process_add_channel_form, \
     process_join_channel_form, get_number_of_channels_users, get_number_of_channels_messages, get_channels_users, \
     is_admin, admin_manager, check_channel_settings_form, no_channel
 
@@ -27,13 +27,13 @@ def setup_app() -> str:
         The rendered template of the main app.
 
     """
-    add_channel_form = AddChannelForm()
-    join_channel_form = JoinChannelForm()
-    update_channel_form = UpdateChannelForm()
+    add_channel_form = AddChannelForm(prefix='add')
+    join_channel_form = JoinChannelForm(prefix='join')
+    # update_channel_form = UpdateChannelForm()
 
     add_channel_form_invalid = False
     join_channel_form_invalid = False
-    update_channel_form_invalid = False
+    # update_channel_form_invalid = False
 
     if add_channel_form.submit_add.data:
         if add_channel_form.validate_on_submit():
@@ -47,11 +47,11 @@ def setup_app() -> str:
         else:
             join_channel_form_invalid = True
 
-    elif update_channel_form.submit_update.data:
-        if update_channel_form.validate_on_submit():
-            process_update_channel_form(update_channel_form)
-        else:
-            update_channel_form_invalid = True
+    # elif update_channel_form.submit_update.data:
+    #     if update_channel_form.validate_on_submit():
+    #         process_update_channel_form(update_channel_form)
+    #     else:
+    #         update_channel_form_invalid = True
 
     allowed_channels = ChannelAllowList.query.filter_by(user_id=current_user.id).all()
     channels = [allowed_channel.channel for allowed_channel in allowed_channels]
@@ -61,11 +61,11 @@ def setup_app() -> str:
 
         add_channel_form=add_channel_form,
         join_channel_form=join_channel_form,
-        update_channel_form=update_channel_form,
+        # update_channel_form=update_channel_form,
 
         add_channel_form_invalid=add_channel_form_invalid,
         join_channel_form_invalid=join_channel_form_invalid,
-        update_channel_form_invalid=update_channel_form_invalid
+        # update_channel_form_invalid=update_channel_form_invalid
     )
 
 @main.route('/get-messages', methods=['POST'])

@@ -1,4 +1,4 @@
-version: '3.7'
+version: "3.7"
 
 services:
   web:
@@ -6,6 +6,8 @@ services:
     command: python run.py
     ports:
       - 5000:5000
+    environment:
+      - IS_DOCKER=1
     env_file:
       - ./flask.env.dev
     depends_on:

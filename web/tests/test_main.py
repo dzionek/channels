@@ -2,6 +2,15 @@
 
 from datetime import datetime
 from typing import Callable
+import time
+import os
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.common.keys import Keys
 
 from app import app
 from app.models import db, User, Channel, Message, ChannelAllowList
@@ -37,8 +46,129 @@ def channel_settings_context(func: Callable) -> Callable:
 
     return wrapper
 
+def get_driver() -> webdriver.Chrome:
+    """Get the driver used by Selenium tests.
+
+    Returns:
+        The driver used by Selenium tests.
+
+    """
+    options = Options()
+    options.headless = True
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+
+    if os.environ.get('IS_DOCKER'):
+        return webdriver.Chrome('/usr/bin/chromedriver', chrome_options=options)
+    else:
+        return webdriver.Chrome('tests/assets/local_webdriver/chromedriver', chrome_options=options)
+
+def join_test_channel(driver: webdriver.Chrome, password: str) -> None:
+    """Join the channel through the join channel form.
+
+    Args:
+        driver: The Chrome Webdriver used for testing.
+        password: The password that should be filled in.
+
+    """
+    WebDriverWait(driver, 10).until(
+        EC.element_to_be_clickable((By.ID, 'join-channel-button'))
+    )
+    driver.find_element_by_id('join-channel-button').click()
+    WebDriverWait(driver, 10).until(
+        lambda x: x.find_element_by_name('join-name').is_displayed())
+    driver.find_element_by_name('join-name').clear()
+    driver.find_element_by_name('join-name').send_keys('testJoin')
+    join_channel_password = driver.find_element_by_name('join-password')
+    join_channel_password.send_keys(password)
+    join_channel_password.send_keys(Keys.ENTER)
+
 
 class TestRoutes:
+
+    def test_setup_app(self) -> None:
+        app.config['TESTING'] = True
+        with app.app_context():
+            db.drop_all()
+            db.create_all()
+            db.session.add(Channel(name='testJoin', password=hash_password('passwordJoin')))
+            db.session.commit()
+            assert not User.query.first()
+
+            driver = get_driver()
+            time.sleep(5)
+            # Registration
+            driver.get('http://localhost:5000/register')
+
+            login_input = WebDriverWait(driver, 10).until(
+                lambda x: x.find_element_by_name('username'))
+            login_input.send_keys('testUsername')
+
+            driver.find_element_by_name('email').send_keys('test@email.com')
+            driver.find_element_by_name('password').send_keys('testPassword')
+            confirm_password = driver.find_element_by_name('confirm_password')
+            confirm_password.send_keys('testPassword')
+            confirm_password.send_keys(Keys.ENTER)
+            assert 'An account was successfully created for testUsername!' in driver.page_source
+
+            # Log in
+            driver.find_element_by_name('email').send_keys('test@email.com')
+            password_input = driver.find_element_by_name('password')
+            password_input.send_keys('testPassword')
+            password_input.send_keys(Keys.ENTER)
+            assert 'Log out' in driver.page_source
+            assert 'No channels so far' in driver.page_source
+
+            # Add channel
+            #   - passwords don't match
+            time.sleep(1)
+            WebDriverWait(driver, 10).until(
+                EC.element_to_be_clickable((By.ID, 'add-channel-button'))
+            )
+            driver.find_element_by_id('add-channel-button').click()
+            WebDriverWait(driver, 10).until(
+                lambda x: x.find_element_by_name('add-name').is_displayed())
+            driver.find_element_by_name('add-name').send_keys('testChannel')
+            driver.find_element_by_name('add-password').send_keys('testPassword')
+            add_channel_conf_password = driver.find_element_by_name('add-confirm_password')
+            add_channel_conf_password.send_keys('testPassword2')
+            add_channel_conf_password.send_keys(Keys.ENTER)
+            assert 'Passwords must match' in driver.page_source
+            assert len(Channel.query.all()) == 1
+
+            #   - passwords match
+            WebDriverWait(driver, 10).until(
+                lambda x: x.find_element_by_name('add-name').is_displayed())
+            driver.find_element_by_name('add-password').send_keys('testPassword')
+            add_channel_conf_password = driver.find_element_by_name('add-confirm_password')
+            add_channel_conf_password.send_keys('testPassword')
+            add_channel_conf_password.send_keys(Keys.ENTER)
+            assert 'You have successfully added the channel "testChannel"' in driver.page_source
+            assert len(Channel.query.all()) == 2
+
+            # Join channel
+            #   - invalid password
+            join_test_channel(driver, 'passwordJoin2')
+            assert 'Joining unsuccessful' in driver.page_source
+            assert len(ChannelAllowList.query.all()) == 1
+
+            #   - valid password
+            join_test_channel(driver, 'passwordJoin')
+            assert 'Joining unsuccessful' not in driver.page_source
+            assert 'You have successfully joined the channel "testJoin"' in driver.page_source
+            assert len(ChannelAllowList.query.all()) == 2
+
+            #   - trying to re-join the channel
+            join_test_channel(driver, 'passwordJoin')
+            assert 'Joining unsuccessful' not in driver.page_source
+            assert 'You have successfully joined the channel "testJoin"' not in driver.page_source
+            assert 'You are already member of this channel' in driver.page_source
+            assert len(ChannelAllowList.query.all()) == 2
+
+            driver.close()
+            time.sleep(5)
+            driver.quit()
+            assert User.query.first()
 
     @route_context
     def test_get_messages_ajax(self) -> None:

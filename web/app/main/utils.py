@@ -96,7 +96,7 @@ def process_add_channel_form(form: AddChannelForm) -> Response:
 
     db.session.commit()
 
-    flash(f'You have successfully added the channel "{form.name.data}!"', 'success')
+    flash(f'You have successfully added the channel "{form.name.data}"!', 'success')
 
     return redirect(url_for('main.setup_app'))
 
@@ -124,9 +124,9 @@ def process_join_channel_form(form: JoinChannelForm) -> str:
 
     return redirect(url_for('main.setup_app'))
 
-def process_update_channel_form(form: UpdateChannelForm):
-    """TODO"""
-    pass
+# def process_update_channel_form(form: UpdateChannelForm):
+#     """TODO"""
+#     pass
 
 def get_number_of_channels_users(channel: Channel) -> int:
     """Get the number of users allowed to see the given channel.

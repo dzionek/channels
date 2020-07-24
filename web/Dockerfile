@@ -8,7 +8,7 @@ ENV PYTHONUNBUFFERED 1
 COPY . /usr/src/app
 
 # Install packages neccessary to build
-RUN apk add --update --no-cache build-base libffi-dev postgresql-dev zlib-dev jpeg-dev
+RUN apk add --update --no-cache build-base libffi-dev postgresql-dev zlib-dev jpeg-dev chromium chromium-chromedriver
 
 # Install pip and Python dependencies
 RUN pip install --upgrade pip &&\

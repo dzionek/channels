@@ -4,11 +4,12 @@ Module containing the classes of the forms to add and update a channel.
 
 import re
 
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField, PasswordField
 from wtforms.validators import DataRequired, ValidationError, Length, EqualTo
 
-from app.models.channel import Channel
+from app.models import Channel, ChannelAllowList
 
 class ChannelForm(FlaskForm):
     """Base channel form class with methods to validate the email."""
@@ -93,6 +94,20 @@ class JoinChannelForm(ChannelForm):
     name = StringField('Name of the new channel', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     submit_join = SubmitField('Join now!')
+
+    def validate_name(self, name: StringField) -> None:
+        """Check if the filled name is not among the channels the user already has access to.
+
+        Args:
+            name: The filled name of the channel.
+
+        Raises:
+            ValidationError: If the name is not valid.
+
+        """
+        if channel := Channel.query.filter_by(name=name.data).first():
+            if ChannelAllowList.query.filter_by(user_id=current_user.id).filter_by(channel_id=channel.id).first():
+                raise ValueError("You are already member of this channel.")
 
 class UpdateChannelForm(ChannelForm):
     """Form to update an existing channel.

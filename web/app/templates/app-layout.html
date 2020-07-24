@@ -14,10 +14,10 @@
 
                 <div id="channels-ui-parent">
                     <div id="channels-ui-child">
-                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add-channel-modal">
+                        <button type="button" class="btn btn-primary btn-sm" data-toggle="modal" data-target="#add-channel-modal" id="add-channel-button">
                             Add channel
                         </button>
-                        <button type="button" class="btn btn-success btn-sm ml-4" data-toggle="modal" data-target="#join-channel-modal">
+                        <button type="button" class="btn btn-success btn-sm ml-4" data-toggle="modal" data-target="#join-channel-modal" id="join-channel-button">
                             Join channel
                         </button>
                     </div>
@@ -117,14 +117,14 @@
                         </button>
                     </div>
                     <div class="modal-body modal-body-extended">
-                            {{ update_channel_form.hidden_tag() }}
+                            {{ join_channel_form.hidden_tag() }}
                             <fieldset class="form-group">
                                 <div class="form-group">
                                     {{ join_channel_form.name.label(class="form-control-label") }}
                                     {% if join_channel_form.name.errors %}
                                         {{ join_channel_form.name(class="form-control form-control-lg is-invalid") }}
                                         <div class="invalid-feedback">
-                                            {% for error in form.name.errors %}
+                                            {% for error in join_channel_form.name.errors %}
                                                 <span>{{ error }}</span>
                                             {% endfor %}
                                         </div>

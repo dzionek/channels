@@ -47,7 +47,7 @@ def index() -> Union[Response, str]:
             next_page = request.args.get('next')
             return redirect(next_page) if next_page else redirect(url_for('main.setup_app'))
         else:
-            flash('Login Unsuccessful. Incorrect email or password', 'danger')
+            flash('Login Unsuccessful. Incorrect email or password.', 'danger')
 
     return render_template('login.html', form=form)
 

@@ -40,6 +40,13 @@ body {
   padding: 3% 6%;
   background-color: white;
 
+  font-size: 1.4rem;
+  line-height: 3vh;
+
+  input {
+    font-size: 1.4rem !important;
+  }
+
   legend, #button-div  {
     text-align: center;
   }

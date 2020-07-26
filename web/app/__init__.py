@@ -7,7 +7,7 @@ from flask import Flask
 from flask_socketio import SocketIO, join_room, leave_room
 
 from .config import configure_app
-from . import models, main, login, bcrypt, login_manager, cli
+from . import models, main, login, api, bcrypt, login_manager, cli
 
 from app.sockets import add_message
 import app.cli.commands
@@ -27,6 +27,7 @@ def create_app() -> Flask:
     models.init_app(app)
     main.init_app(app)
     login.init_app(app)
+    api.init_app(app)
     bcrypt.init_app(app)
     login_manager.init_app(app)
     cli.init_app(app)

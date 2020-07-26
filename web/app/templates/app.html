@@ -42,7 +42,11 @@
             {% endwith %}
         </div>
         <div class="col-lg-3">
-            <button type="button" id="logout-button" class="btn btn-warning btn-sm"
+            <button type="button" class="btn btn-info btn-sm"
+                    onclick="window.location.href='{{ url_for('api.settings') }}'">
+                <span class="ml-2 mr-2">API</span>
+            </button>
+            <button type="button" class="btn btn-warning ml-2 btn-sm"
                     onclick="window.location.href='{{ url_for('login.settings') }}'">
                 Settings
             </button>

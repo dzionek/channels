@@ -2,6 +2,8 @@
 [![codecov](https://codecov.io/gh/dzionek/channels/branch/master/graph/badge.svg)](https://codecov.io/gh/dzionek/channels)
 # Channels
 
+<img src="readme_screenshots/screenshot-1">
+
 Flask web-application where you can create own channels, manage them, and chat with your friends/colleagues.
 Created with Python, TypeScript, SCSS, Bootstrap, Socket.io, Handlebars templates, and love. Bundled with Webpack.
 Containerized with Docker.

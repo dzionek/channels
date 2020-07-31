@@ -59,3 +59,36 @@ class TestRoutes:
             message = channel_res['messages'][0]
             assert message['author']['username'] == 'testUsername'
             assert message['content'] == 'hello world'
+
+    @route_context
+    def test_channel(self) -> None:
+        db.session.add(User(
+            username='testUsername', password=hash_password('testPassword'), email='test@email.com'
+        ))
+        db.session.add(Channel(name='channel', password=hash_password('pass')))
+        db.session.add(ChannelAllowList(user_id=1, channel_id=1))
+        db.session.add(Channel(name='channel other', password=hash_password('pass')))
+
+        token = User.query.get(1).generate_api_token()
+
+        with app.test_client() as c:
+            rv = c.post('/api/channels/channel', follow_redirects=True)
+            assert rv.status_code == 404
+            assert 'Token not found' in str(rv.data)
+
+            rv = c.post('/api/channels/channel', data=dict(token='invalid'), follow_redirects=True)
+            assert rv.status_code == 403
+            assert 'The token is either invalid or expired' in str(rv.data)
+
+            rv = c.post('/api/channels/channel', data=dict(token=token), follow_redirects=True)
+            assert rv.status_code == 200
+            json_res = json.loads(rv.data.decode('utf8'))
+            assert json_res['name'] == 'channel'
+
+            rv = c.post('/api/channels/channel other', data=dict(token=token), follow_redirects=True)
+            assert rv.status_code == 404
+            assert 'you do not have permission' in str(rv.data)
+
+            rv = c.post('/api/channels/this does not exist', data=dict(token=token), follow_redirects=True)
+            assert rv.status_code == 404
+            assert 'does not exist' in str(rv.data)

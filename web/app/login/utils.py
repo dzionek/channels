@@ -61,7 +61,7 @@ def get_number_of_all_messages() -> int:
         The number of all messages of the user.
 
     """
-    number_of_all_messages: int = Message.query.filter_by(user_id=current_user.id).count()
+    number_of_all_messages: int = Message.query.filter_by(author_id=current_user.id).count()
     return number_of_all_messages
 
 def get_number_of_all_channels() -> int:

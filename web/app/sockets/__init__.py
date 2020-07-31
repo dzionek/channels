@@ -31,7 +31,7 @@ def add_message(data: dict) -> None:
     channel_id = Channel.query.filter_by(name=channel).first().id
 
     db.session.add(Message(
-        content=message_content, user_id=user_id, time=full_time, channel_id=channel_id
+        content=message_content, author_id=user_id, time=full_time, target_channel=channel_id
     ))
 
     db.session.commit()

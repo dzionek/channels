@@ -16,3 +16,4 @@ def configure_app(app: Flask) -> None:
     app.config['SESSION_TYPE'] = 'filesystem'
     app.config['SQLALCHEMY_DATABASE_URI'] = environ['DATABASE_URI']
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config["JSON_SORT_KEYS"] = False

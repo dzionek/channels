@@ -30,6 +30,7 @@ class ChannelAllowList(db.Model):
 
     channel_id = db.Column(db.Integer, db.ForeignKey('channels.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    member = db.relationship('User', lazy=True)
 
     def __repr__(self) -> str:
         """Get representation of a record of the allow list.

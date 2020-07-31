@@ -1,8 +1,11 @@
 """
 Module containing the class of the user model.
 """
+from typing import Optional
 
 from flask_login import UserMixin
+from itsdangerous import TimedJSONWebSignatureSerializer as Serializer, SignatureExpired, BadSignature
+from os import environ
 
 from .base import db
 
@@ -43,3 +46,37 @@ class User(db.Model, UserMixin):
 
         """
         return f"User(name='{self.username}')"
+
+    def generate_api_token(self, expiration: int = 604800) -> str:
+        """Generate the token for API valid for the given number of seconds.
+
+        Args:
+            expiration: The number of seconds saying how long the token should be valid.
+
+        Returns:
+            The user's individual API token.
+
+        """
+        s = Serializer(environ['SECRET_KEY'], expires_in=expiration, salt='api_token')
+        return s.dumps({'id': self.id}).decode('utf8')
+
+    @staticmethod
+    def verify_api_token(token: str) -> Optional['User']:
+        """Verify the given API token and if it is valid return the user assigned to the token.
+
+        Args:
+            token: The token to be verified.
+
+        Returns:
+            Either the matched user or None.
+
+        """
+        s = Serializer(environ['SECRET_KEY'], salt='api_token')
+        try:
+            data = s.loads(token)
+        except SignatureExpired:
+            return None  # valid token, but expired
+        except BadSignature:
+            return None  # invalid token
+        user = User.query.get(data['id'])
+        return user

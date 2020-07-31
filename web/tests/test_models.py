@@ -28,5 +28,5 @@ def test_repr() -> None:
         f'ChannelAllowList(channel_id=1, user_id=1, user_role={UserRole.ADMIN.value})'
 
     time = datetime.utcnow()
-    message = Message(content='content', user_id=user_id, channel_id=channel_id, time=time)
-    assert message.__repr__() == f"Message(user_id=1, channel_id=1, time={time})"
+    message = Message(content='content', author_id=user_id, target_channel=channel_id, time=time)
+    assert message.__repr__() == f"Message(author_id=1, target_channel=1, time={time})"

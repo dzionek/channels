@@ -47,9 +47,9 @@ def get_messages(channel_name: str, counter: int) -> Any:
 
     messages_response = [
         {
-            'userName': User.query.filter_by(id=message.user_id).first().username,
+            'userName': User.query.filter_by(id=message.author_id).first().username,
             'userPicture': f"{url_for('static', filename='img/profile_pictures')}/"
-                           f"{ User.query.filter_by(id=message.user_id).first().profile_picture }",
+                           f"{ User.query.filter_by(id=message.author_id).first().profile_picture }",
             'content': message.content,
             'time': convert_time_to_string(message.time)
         }

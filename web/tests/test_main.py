@@ -196,7 +196,7 @@ class TestRoutes:
             assert json['messages'] == []
 
             for _ in range(5):
-                db.session.add(Message(content='_', channel_id=1, user_id=1, time=datetime.utcnow()))
+                db.session.add(Message(content='_', target_channel=1, author_id=1, time=datetime.utcnow()))
 
             rv = c.post('/get-messages', data={'channelName': 'channel', 'counter': '3'}, follow_redirects=True)
             assert 'messages' in str(rv.data)
@@ -207,7 +207,7 @@ class TestRoutes:
                 assert user == 'testUsername'
 
             for _ in range(20):
-                db.session.add(Message(content='&', channel_id=1, user_id=1, time=datetime.utcnow()))
+                db.session.add(Message(content='&', target_channel=1, author_id=1, time=datetime.utcnow()))
 
             rv = c.post('/get-messages', data={'channelName': 'channel', 'counter': '25'}, follow_redirects=True)
             json = eval(rv.data.decode('utf8'))
@@ -236,7 +236,7 @@ class TestRoutes:
             assert json['counter'] == 0
 
             for _ in range(20):
-                db.session.add(Message(content='&', channel_id=1, user_id=1, time=datetime.utcnow()))
+                db.session.add(Message(content='&', target_channel=1, author_id=1, time=datetime.utcnow()))
 
             rv = c.post('/initial-counter', data={'channelName': 'channel'}, follow_redirects=True)
             json = eval(rv.data.decode('utf8'))

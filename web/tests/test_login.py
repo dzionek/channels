@@ -100,11 +100,11 @@ class TestUtils:
                 rv = login(c, user_1.email, 'testPassword')
                 assert 'Log out' in str(rv.data)
                 assert u.get_number_of_all_messages() == 0
-                db.session.add(Message(content='_', time=datetime.utcnow(), user_id=1, channel_id=1))
+                db.session.add(Message(content='_', time=datetime.utcnow(), author_id=1, target_channel=1))
                 assert u.get_number_of_all_messages() == 1
 
                 for _ in range(10):
-                    db.session.add(Message(content='_', time=datetime.utcnow(), user_id=2, channel_id=1))
+                    db.session.add(Message(content='_', time=datetime.utcnow(), author_id=2, target_channel=1))
 
                 assert u.get_number_of_all_messages() == 1
 
@@ -314,7 +314,7 @@ class TestRoutes:
             assert '0' in find_substr_between(str(rv.data), 'All messages:', '</span>')
 
             for _ in range(13):
-                db.session.add(Message(content='_', time=datetime.utcnow(), channel_id=1, user_id=1))
+                db.session.add(Message(content='_', time=datetime.utcnow(), target_channel=1, author_id=1))
 
             rv = c.get('/settings', follow_redirects=True)
             assert '1' in find_substr_between(str(rv.data), 'All channels:', '</span>')

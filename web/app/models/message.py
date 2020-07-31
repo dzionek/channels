@@ -20,8 +20,9 @@ class Message(db.Model):
     content = db.Column(db.Text, nullable=False)
     time = db.Column(db.DateTime, nullable=False)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-    channel_id = db.Column(db.Integer, db.ForeignKey('channels.id', ondelete='CASCADE'), nullable=False)
+    author_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    author = db.relationship('User', lazy=True)
+    target_channel = db.Column(db.Integer, db.ForeignKey('channels.id', ondelete='CASCADE'), nullable=False)
 
     def __repr__(self) -> str:
         """Get representation of a message.
@@ -30,4 +31,4 @@ class Message(db.Model):
             String representation of a message.
 
         """
-        return f"Message(user_id={self.user_id}, channel_id={self.channel_id}, time={self.time})"
+        return f"Message(author_id={self.author_id}, target_channel={self.target_channel}, time={self.time})"

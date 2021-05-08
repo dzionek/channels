@@ -7,7 +7,7 @@ colorama==0.4.3
 coverage==5.2
 dnspython==1.16.0
 email-validator==1.1.1
-eventlet==0.25.2
+eventlet==0.31.0
 Flask==1.1.2
 Flask-Bcrypt==0.7.1
 Flask-Login==0.5.0

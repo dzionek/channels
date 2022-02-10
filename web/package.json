@@ -27,7 +27,7 @@
     "@types/socket.io-client": "^1.4.33",
     "clean-css-cli": "^4.3.0",
     "handlebars-loader": "^1.7.1",
-    "node-sass": "^4.14.1",
+    "node-sass": "^7.0.0",
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.3",
     "webpack": "^4.43.0",
